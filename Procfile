@@ -1,1 +1,1 @@
-web: gunicorn cryptech.wsgi
+web: gunicorn cryptech.wsgi --log-file -
