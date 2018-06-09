@@ -1,6 +1,4 @@
 from django.http import HttpResponse
-from hellosign_sdk import HSClient
-
-
+import os
 def index(request):
-    return HttpResponse('hi')
+    return HttpResponse(os.environ.get('FACTOM_HOST'))

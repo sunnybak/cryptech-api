@@ -1,4 +1,4 @@
-
+from hellosign_sdk import HSClient
 
 def main():
     client = HSClient(api_key='cd024ab0dbbd0f138420f793da365b0e879180a083924c8b2ac7b9dbee48e35c')
