@@ -14,7 +14,7 @@ def index(request):
 
     context = dict()
 
-    fields = ['timestamp', 'msg', 'hmsg','rk', 'uk', 'sign', 'verified']
+    fields = ['timestamp', 'msg', 'hmsg','private_key', 'public_key', 'sign', 'verified']
     params = process_request(request, fields)
 
     for f in fields:
@@ -22,15 +22,15 @@ def index(request):
             context[f] = params[f]
 
     params['timestamp'] = str(int(time.time()))
-    if params['msg'] != '' and params['uk'] != '' and params['rk'] != '':
+    if params['msg'] != '' and params['public_key'] != '' and params['private_key'] != '':
         params['hmsg'] = nacl_sign.hash_msg(params['msg'])
-        print(params['msg'], params['rk'])
-        s = nacl_sign.Sign(params['msg'], params['rk'])
+        print(params['msg'], params['private_key'])
+        s = nacl_sign.Sign(params['msg'], params['private_key'])
         params['sign'] = s.sign
-        params['verified'] = nacl_sign.verify(params['msg'], s, params['uk'])
+        params['verified'] = nacl_sign.verify(params['msg'], s, params['public_key'])
     context['params'] = params
     print(factom.chain_add_entry(chain_id='fb8d30c54e846b2bd7f1f5f68145c309be4c1885def89f05954dc89ce0878206',
-                           external_ids=[params['uk'], params['hmsg']],
+                           external_ids=[params['public_key'], params['hmsg']],
                            content=params['sign']
                            ))
     return render(request, 'index.html', context)
@@ -46,5 +46,5 @@ def process_request(request, fields):
     return query
 
 def keys(request):
-    rk, uk = nacl_sign.generate_keys()
-    return HttpResponse("Private Key: " + rk + "<br>Public   Key: " + uk)
+    private_key, public_key = nacl_sign.generate_keys()
+    return HttpResponse("Private Key: " + private_key + "<br>Public   Key: " + public_key)
