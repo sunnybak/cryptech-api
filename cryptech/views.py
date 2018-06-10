@@ -40,27 +40,11 @@ def step_one(request):
         else:
             context['content_hash'] = ''
 
-    # fields = ['timestamp', 'msg', 'hmsg','private_key', 'public_key', 'sign', 'verified']
-    # params = process_request(request, fields)
-    #
-
-    #         print(params['msg'], params['private_key'], params['hmsg'])
-    #         s = nacl_sign.Sign(params['msg'], params['private_key'])
-    #         params['sign'] = s.sign
-    #         params['verified'] = nacl_sign.verify(params['msg'], s, params['public_key'])
-
-
     private_key, public_key = generate_keys()
     context['public_key'] = public_key
     context['private_key'] = private_key
     context['raw_nonce'] = request.user.username + User.objects.get(username=request.user.username).email
     context['nonce'] = str(nonce(hash_msg(request.user.username + User.objects.get(username=request.user.username).email)),'utf-8')
-    # context['']
-    # context['params'] = params
-    # print(factom.chain_add_entry(chain_id='fb8d30c54e846b2bd7f1f5f68145c309be4c1885def89f05954dc89ce0878206',
-    #                        external_ids=[params['public_key'], params['hmsg']],
-    #                        content=params['sign']
-    #                        ))
 
     return render(request, 'upload.html', context)
 
@@ -68,17 +52,31 @@ def step_one(request):
 @csrf_exempt
 def step_two(request):
     context = dict()
-    fields = ['content_hash', 'private_key', 'public_key', 'signature', 'chain_id', 'verified']
-    params = process_request(request, fields)
-    params['timestamp'] = str(int(time.time()))
-    params['chain_id'] = 'fb8d30c54e846b2bd7f1f5f68145c309be4c1885def89f05954dc89ce0878206'
-    n = nonce(hash_msg(request.user.username + User.objects.get(username=request.user.username).email))
-    print(params['content_hash'], params['private_key'])
-    # s = Sign(params['content_hash'], params['private_key'], nonce=n)
-    # params['sign'] = s.sign
-    # params['verified'] = str(verify(params['msg'], s, params['public_key']))
-    context['params'] = params
+    fields_user = [ 'private_key', 'public_key']
+    fields_content = ['chain_id', 'timestamp', 'content_hash', 'signature', 'verified']
+    user_info = process_request(request, fields_user)
+    content_info = process_request(request, fields_content)
 
+    content_info['timestamp'] = str(int(time.time()))
+    content_info['chain_id'] = 'fb8d30c54e846b2bd7f1f5f68145c309be4c1885def89f05954dc89ce0878206'
+    n = nonce(hash_msg(request.user.username + User.objects.get(username=request.user.username).email))
+    s = Sign(content_info['content_hash'], user_info['private_key'], nonce=n)
+    content_info['signature'] = s.sign
+    content_info['verified'] = str(verify(content_info['content_hash'], s, user_info['public_key']))
+    context['content_info'] = content_info
+    context['user_info'] = user_info
+    entry_hash = factom.chain_add_entry(chain_id='fb8d30c54e846b2bd7f1f5f68145c309be4c1885def89f05954dc89ce0878206',
+                           external_ids=[user_info['public_key'], content_info['content_hash'], content_info['timestamp']],
+                           content=content_info['signature']
+                           )['entry_hash'] or None
+    print(entry_hash)
+    if entry_hash:
+        content_info['entry_hash'] = entry_hash
+        entry_object = factom.chain_get_entry(chain_id='fb8d30c54e846b2bd7f1f5f68145c309be4c1885def89f05954dc89ce0878206', entry_hash=entry_hash)
+        if entry_object is not None:
+            factom_info = entry_object
+            print(factom_info)
+            context['factom_info'] = factom_info
     return render(request, 'origin.html', context)
 
 
@@ -89,16 +87,14 @@ def step_three(request):
     dataset = []
 
     class data(object):
-        def __init__(self):
-            self.d0 = 'd0'
-            self.d1 = 'd1'
-            self.d2 = 'd2'
-            self.d3 = 'd3'
-            self.d4 = 'd4'
-            self.d5 = 'd5'
+        def __init__(self, links, entry_hash):
+            self.links = links
+            self.entry_hash = entry_hash
 
-    for i in range(0, 10):
-        dataset.append(data())
+    fce = factom.chain_entries('fb8d30c54e846b2bd7f1f5f68145c309be4c1885def89f05954dc89ce0878206')['items']
+    print(fce)
+    for entry in fce:
+        dataset.append(data(entry['links']['entry'], entry['entry_hash']))
 
     context['dataset'] = dataset
 
@@ -115,7 +111,7 @@ def process_request(request, fields):
 
 
 def keys(request=None):
-    private_key, public_key = nacl_sign.generate_keys()
+    private_key, public_key = generate_keys()
     return HttpResponse("Private Key: " + private_key + "<br>Public   Key: " + public_key)
 
 
