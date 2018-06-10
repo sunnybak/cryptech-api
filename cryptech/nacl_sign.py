@@ -66,32 +66,37 @@ class Sign(object):
 
 
 if __name__ == "__main__":
-    rk_A = '4c793701b52477ffa792a3195e39d666c847dbe1763b453a3a5b60a6bb547238'
-    uk_A = '9db8ecffe9b9f9cb3778f613189636b3c74be20b3353df0b8dded184729e382b'
-    msg = 'Shikhar Bakhda'
+    # rk_A = '4c793701b52477ffa792a3195e39d666c847dbe1763b453a3a5b60a6bb547238'
+    # uk_A = '9db8ecffe9b9f9cb3778f613189636b3c74be20b3353df0b8dded184729e382b'
+    # msg = 'Shikhar Bakhda'
+    #
+    # n = nonce(hash_msg('shikharbakhda@gmail.commindstorms2.0'))
+    # t = str(int(time.time()))
+    # m = hash_msg(msg)
+    # s = Sign(m, rk_A, n)
+    # v = verify(m, s, uk_A)
+    #
+    # print('Time: ' + t)
+    # print('Msg : ' + m)
+    # print('Sign: ' + str(s))
+    # print('Nonc: ' + str(s)[0:48])
+    # print('Verf: ' + str(v))
+    #
+    # n = nonce(hash_msg('shikharbakhda@gmail.commindstorms2.0'))
+    #
+    # m = hash_msg(msg+'!')
+    # s = Sign(m, rk_A, n)
+    # v = verify(m, s, uk_A)
+    #
+    #
+    # print('Time: ' + t)
+    # print('Msg : ' + m)
+    # print('Sign: ' + str(s))
+    # print('Nonc: ' + str(s)[0:48])
+    # print('Verf: ' + str(v))
+    # # print('Pruf: ' + p)
 
-    n = nonce(hash_msg('shikharbakhda@gmail.commindstorms2.0'))
-    t = str(int(time.time()))
-    m = hash_msg(msg)
-    s = Sign(m, rk_A, n)
-    v = verify(m, s, uk_A)
-
-    print('Time: ' + t)
-    print('Msg : ' + m)
-    print('Sign: ' + str(s))
-    print('Nonc: ' + str(s)[0:48])
-    print('Verf: ' + str(v))
-
-    n = nonce(hash_msg('shikharbakhda@gmail.commindstorms2.0'))
-
-    m = hash_msg(msg+'!')
-    s = Sign(m, rk_A, n)
-    v = verify(m, s, uk_A)
-
-
-    print('Time: ' + t)
-    print('Msg : ' + m)
-    print('Sign: ' + str(s))
-    print('Nonc: ' + str(s)[0:48])
-    print('Verf: ' + str(v))
-    # print('Pruf: ' + p)
+    signature = '3166633237646136633461666664643435346163356366376f3242103bec9e9514efac269b0c96431c8ba88d13ee4d2f32f2a7bdb96bc4ca172955369cd1ff64bb8da85321c7c8b12aeea5129ea547dc5f6f107d9181dde0afeec865f4bfed960c42ab1b8f013080'
+    content_hash = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
+    public_key = '37f7384d393b49d85e37263e411c2333e2464347f2670ff68d86bcdd00354606'
+    print(str(verify(content_hash, Sign(sign=signature), public_key)))

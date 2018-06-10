@@ -13,24 +13,24 @@
                 <div class="panel-body" align="center">
                     <h3>Your content is being pushed to the blockchain! </h3><br><br>
                     <h4>Your credentials:</h4>
-                    <form action="/explore/" method="post">
+                    <form action="/origin/" method="post">
                             {% for p,k in user_info.items %}
                                 <br><label class="control-label col-sm-2" for="{{ p }}">{{ p }}:</label>
                                 <input id="{{ p }}" type="text" name="{{ p }}" value="{{ k }}" size="100"><br>
                             {% endfor %}
-                    </form><br><br>
+                    <br><br>
                     <h4>Your content credentials:</h4>
                             {% for p,k in content_info.items %}
                                 <br><label class="control-label col-sm-2" for="{{ p }}">{{ p }}:</label>
                                 <input id="{{ p }}" type="text" name="{{ p }}" value="{{ k }}" size="100"><br>
                             {% endfor %}
-                    </form><br><br>
+                    <br><br>
                     <h4>Your factom information:</h4>
                             {% for p,k in factom_info.items %}
                                 <br><label class="control-label col-sm-2" for="{{ p }}">{{ p }}:</label>
                                 <input id="{{ p }}" type="text" name="{{ p }}" value="{{ k }}" size="100"><br>
                             {% endfor %}<br><br>
-                        <br><input type="submit" value="Submit" formaction="/explore/">
+                        <br><input type="submit" value="Update">
                     </form>
                 </div>
             </div>

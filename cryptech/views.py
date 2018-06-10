@@ -166,7 +166,7 @@ class UserFormView(View):
                 if user.is_active:
                     login(request, user)
 
-                    return redirect('index')
+                    return redirect('upload')
 
 
 def login_user(request):
@@ -177,7 +177,7 @@ def login_user(request):
         if user is not None:
             if user.is_active:
                 login(request, user)
-                return index(request)
+                return step_one(request)
 
             else:
                 return render(request, 'login.html', {'error_message': 'Your account has been disabled'})
