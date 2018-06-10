@@ -3,7 +3,12 @@ import time
 from cryptech import factom
 from django.shortcuts import render
 from cryptech import nacl_sign
+from rest_framework import viewsets
+from cryptech.serializers import UserSerializer, GroupSerializer
+from django.contrib.auth.models import User, Group
+from django.views.decorators.csrf import csrf_exempt
 
+@csrf_exempt
 def index(request):
     # ext_ids = ['mediachain', str(int(time.time()))]
     # content ='Chain for copyrights, patents, and create asset protection'
@@ -11,7 +16,7 @@ def index(request):
     # 'chain id = fb8d30c54e846b2bd7f1f5f68145c309be4c1885def89f05954dc89ce0878206'
     # 'entry hash = 3cbbae26e73cfeaa8d1566bef45b14a5814e018780e965d3a1366f7fa1431bf6'
     # print('chain id ' + chain_id)
-
+    print(request.POST)
     context = dict()
 
     fields = ['timestamp', 'msg', 'hmsg','private_key', 'public_key', 'sign', 'verified']
@@ -48,3 +53,18 @@ def process_request(request, fields):
 def keys(request):
     private_key, public_key = nacl_sign.generate_keys()
     return HttpResponse("Private Key: " + private_key + "<br>Public   Key: " + public_key)
+
+# class UserViewSet(viewsets.ModelViewSet):
+#     """
+#     API endpoint that allows users to be viewed or edited.
+#     """
+#     queryset = User.objects.all().order_by('-date_joined')
+#     serializer_class = UserSerializer
+#
+#
+# class GroupViewSet(viewsets.ModelViewSet):
+#     """
+#     API endpoint that allows groups to be viewed or edited.
+#     """
+#     queryset = Group.objects.all()
+#     serializer_class = GroupSerializer

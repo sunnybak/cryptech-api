@@ -17,7 +17,7 @@ def _encode(data):
     if not data: 
         return ''
 
-    return base64.b64encode(bytes(data,'utf-8')).decode('utf8')
+    return base64.b64encode(bytes(data, 'utf-8')).decode('utf8')
 
 def _decode(data):
     if not data: 
@@ -55,7 +55,7 @@ def create_chain(external_ids=None, content=None, callback_url=None, callback_st
 
 def chain_search(external_ids=None):
     """ """
-    _ids = [ _encode(extid) for extid in external_ids ]
+    _ids = [_encode(extid) for extid in external_ids ]
     payload = json.dumps({"external_ids": _ids})
     res = requests.request("POST", URL + '/chains/search', data=payload, headers=HEADERS)
     return _decode_response(res.content)
@@ -79,7 +79,7 @@ def chain_add_entry(chain_id=None, external_ids=None, content=None, callback_url
 
 def chain_entry_search(chain_id=None, external_ids=None):
     """ """
-    _ids = [ _encode(extid) for extid in external_ids ]
+    _ids = [_encode(extid) for extid in external_ids ]
     payload = json.dumps({"external_ids": _ids})
     res = requests.request("POST", URL + '/chains/%s/entries/search' % chain_id, data=payload, headers=HEADERS)
     return _decode_response(res.content)
