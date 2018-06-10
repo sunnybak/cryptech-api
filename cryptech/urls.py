@@ -27,5 +27,5 @@ urlpatterns = [
     path('upload/', views.step_one, name='upload'),
     path('origin/', views.step_two, name='origin'),
     path('explore/', views.step_three, name='explore'),
-    path('', views.index, name='index'),
+    path('', views.step_one, name='upload'),
 ]
