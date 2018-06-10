@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+
+    {% load staticfiles %}
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}"/>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+
+    {% block head %}
+    {% endblock %}
+
+
+    <title>{% block title %}MediaChain
+        {% endblock %}</title>
+</head>
+<body>
+<nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#topNavBar">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">
+                <!--<span class="glyphicon glyphicon-home" aria-hidden="true"></span>-->
+                MediaChain
+            </a>
+        </div>
+
+
+        <div class="collapse navbar-collapse" id="topNavBar">
+            <ul class="nav navbar-nav">
+                <li class="">
+                    <a href="{% url 'upload' %}">
+                        <span class="glyphicon glyphicon-open-file" aria-hidden="true"></span>&nbsp;
+                        Upload
+                    </a>
+                </li>
+            </ul>
+            <ul class="nav navbar-nav">
+                <li class="">
+                    <a href="{% url 'origin' %}">
+                        <span class="glyphicon glyphicon-random" aria-hidden="true"></span>&nbsp;
+                        Origin
+                    </a>
+                </li>
+            </ul>
+            <ul class="nav navbar-nav">
+                <li class="">
+                    <a href="{% url 'explore' %}">
+                        <span class="glyphicon glyphicon-bitcoin" aria-hidden="true"></span>&nbsp;
+                        Explore
+                    </a>
+                </li>
+            </ul>
+
+
+            <!--<ul class="nav navbar-nav navbar-right">-->
+            <!--<li class="">-->
+            <!--<a href="{ url 'index }">-->
+            <!--<span class="glyphicon glyphicon-plus" aria-hidden="true"></span>&nbsp;-->
+            <!--Manually Add Device-->
+            <!--</a>-->
+            <!--</li>-->
+            <!--</ul>-->
+
+            <ul class="nav navbar-nav navbar-right">
+                <li class="">
+                    <a href="{% url 'logout_user' %}">
+                        <span class="glyphicon glyphicon-off" aria-hidden="true"></span>&nbsp;
+                        Logout
+                    </a>
+                </li>
+            </ul>
+
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid">
+    </br></br></br></br>
+    <div class="row">
+        <div class="col-sm-12 col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <h4>Your details:</h4>
+                    {% if error_message %}
+                    <p><strong>{{ error_message }}</strong></p>
+                    {% endif %}
+                    <div class="form-group">
+                        <label class="control-label col-sm-2" for="uk">
+                            Public Key:
+                        </label>
+                        <div class="col-sm-10">
+                            <input id="uk" name="uk" type="text" value="{{ public_key }}" size="70">
+                            <button class="btn btn-success" onclick="copyUK()" >Copy</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-sm-2" for="rk">
+                            Private Key:
+                        </label>
+                        <div class="col-sm-10">
+                            <input id="rk" name="rk" type="password" value="{{ private_key }}" size="70">
+                            <button class="btn btn-success" onclick="copyRK()">Copy</button>
+                        </div>
+
+
+                    </div>
+                                        <div class="form-group">
+                        <label class="control-label col-sm-2" for="raw_nonce">
+                            Raw Nonce (dev only):
+                        </label>
+                        <div class="col-sm-10">
+                            <input id="raw_nonce" maxlength="24" name="raw_nonce" type="raw_nonce" value="{{ raw_nonce  }}" size="70">
+                            <button class="btn btn-success" onclick="copyNonce()">Copy</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-sm-2" for="nonce">
+                            Nonce:
+                        </label>
+                        <div class="col-sm-10">
+                            <input id="nonce" maxlength="24" name="nonce" type="nonce" value="{{ nonce  }}" size="70">
+                            <button class="btn btn-success" onclick="copyNonce()">Copy</button>
+                        </div>
+                    </div>
+                    <script>
+                        function copyUK() {
+                            var copyText = document.getElementById("uk");
+                            copyText.select();
+                            document.execCommand("copy");
+                        }
+                                                function copyRK() {
+                            var copyText = document.getElementById("rk");
+                            copyText.select();
+                            document.execCommand("copy");
+                        }
+                                                function copyNonce() {
+                            var copyText = document.getElementById("nonce");
+                            copyText.select();
+                            document.execCommand("copy");
+                        }
+                    </script>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% block body %}
+{% endblock %}
+</body>
+</html>

@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block title %}Log In
+
+{% endblock %}
+{% block login_active %}active{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12 col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-body" align="center">
+                    <h3>Upload some media: </h3>
+                    {% if error_message %}
+                    <p><strong>{{ error_message }}</strong></p>
+                    {% endif %}
+                    <br><br>
+                    <form method="post" enctype="multipart/form-data">
+                        <h4>Upload a Photo:</h4>
+                        <input type="file" name="myfile" accept="image/*" value=""><br><br><br><br>
+                        <h4>Or paste an original writing...</h4><br>
+                        <input id="text_content" name="text_content" type="text_content" value="{{ text_content  }}" size="70">
+                        <br>
+                        <br><br><br>
+                        <h4>Your content hash is:</h4>
+                        <input id="content_hash" name="content_hash" type="content_hash" value="{{ content_hash  }}" size="70">
+                        <button class="btn btn-success" onclick="copyHash()" >Copy</button><br><br><br><br>
+                        <script>
+                        function copyHash() {
+                            var copyText = document.getElementById("content_hash");
+                            copyText.select();
+                            document.execCommand("copy");
+                        }</script>
+                        <input action="/origin/" type="submit" value="Next Step">
+                        <input action="/upload/" type="submit" value="Update Page">
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+</form>
+</div>
+
+{% endblock %}
+
+

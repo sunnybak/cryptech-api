@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% block head %}
+  <meta charset="UTF-8">
+
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+		<style type="text/css">
+${demo.css}
+		</style>
+
+  {% load staticfiles %}
+  <link rel="stylesheet" href="{% static 'reset.css' %}">
+  <link rel="stylesheet" href="{% static 'style_table.css' %}">
+  <script src='http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
+
+  <script src="js/index.js"></script>
+{% endblock %}
+
+
+
+{% block title %}
+Block Explorer
+{% endblock %}
+
+
+
+{% block body %}
+<script src="https://code.highcharts.com/stock/highstock.js"></script>
+<script src="https://code.highcharts.com/stock/modules/exporting.js"></script>
+
+<div class="container-fluid songs-container">
+
+    <div class="row">
+
+        <div class="col-sm-12 col-md-12 divalign2">
+            <div class="panel panel-default">
+                <div class="panel-body">
+
+
+                    <div id="datatableheader">MediaChain Explorer</div>
+
+
+                    <!--<div id="container" style="height: 400px; min-width: 310px">-->
+
+                    </div>
+
+                    </br>
+                    {% if error_message %}
+                        <p><strong>{{ error_message }}</strong></p>
+                    {% endif %}
+
+                    <section>
+                          <div  class="tbl-header">
+                            <table cellpadding="0" cellspacing="0" border="0">
+                                <thead>
+                                    <th>Field1 </th>
+                                    <th>Field1</th>
+                                    <th>Field1</th>
+                                    <th>Field1</th>
+                                    <th>Field1</th>
+                                    <th>Field1</th>
+                                </thead>
+                            </table>
+                          </div>
+
+                            <table cellpadding="0" cellspacing="0" border="0" class = "table">
+                              <tbody>
+                                 {% for data in dataset %}
+                                <tr>
+                                    <td>
+                                        {{ data.d0 }}
+                                    </td>
+                                    <td>
+                                        {{ data.d1 }}
+                                    </td>
+                                    <td>
+                                        {{ data.d2 }}
+                                    </td>
+                                    <td>
+                                        {{ data.d3 }}
+                                    </td>
+                                    <td>
+                                        {{ data.d4 }}
+                                    </td>
+                                    <td>
+                                        {{ data.d5 }}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+
+                            </table>
+
+                    </section>
+
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
