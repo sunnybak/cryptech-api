@@ -4,8 +4,8 @@ import requests
 import json
 import base64
 
-API = os.environ.get('FACTOM_HOST')
-KEY = os.environ.get('FACTOM_KEY')
+API = os.environ.get('FACTOM_HOST') or "https://apiplus-api-sandbox-testnet.factom.com"
+KEY = os.environ.get('FACTOM_KEY') or "LJBTJjewwSP4ijD0KVcgLvEPWz5yHwg7Wxd30U5PsojhTGr6"
 URL = API + '/' + VERSION
 
 HEADERS = {
@@ -17,7 +17,7 @@ def _encode(data):
     if not data: 
         return ''
 
-    return base64.b64encode(data).decode('utf8')
+    return base64.b64encode(bytes(data,'utf-8')).decode('utf8')
 
 def _decode(data):
     if not data: 
@@ -98,3 +98,6 @@ def chain_get_entry(chain_id=None, entry_hash=None):
     """ """
     res = requests.request("GET", URL + '/chains/%s/entries/%s' % (chain_id, entry_hash), headers=HEADERS)
     return _decode_response(res.content)
+
+if __name__ == "__main__":
+    print(chain_info('fb8d30c54e846b2bd7f1f5f68145c309be4c1885def89f05954dc89ce0878206'))
