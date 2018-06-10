@@ -3,9 +3,6 @@ import time
 from cryptech import factom
 from django.shortcuts import render
 from cryptech import nacl_sign
-from rest_framework import viewsets
-from cryptech.serializers import UserSerializer, GroupSerializer
-from django.contrib.auth.models import User, Group
 from django.views.decorators.csrf import csrf_exempt
 
 @csrf_exempt
