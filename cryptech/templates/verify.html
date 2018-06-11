@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block title %}Log In
+
+{% endblock %}
+{% block login_active %}active{% endblock %}
+
+{% block body %}
+
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12 col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-body" align="center">
+                    <h3>Verify your photo:</h3>
+                    {% if error_message %}
+                    <p><strong>{{ error_message }}</strong></p>
+                    {% endif %}
+                    <br><br>
+                    <form action="/verify/" method="post" enctype="multipart/form-data">
+
+                        <label class="control-label col-sm-2" for="public_key">Public Key: </label><br>
+                        <input id="public_key" name="public_key" type="text" value="{{ public_key }}" size="70">
+                        <h4>Upload a Photo:</h4>
+
+                        <input type="file" name="myfile" accept="image/*" value=""><br><br><br><br>
+                        <h4>Or paste an original writing...</h4><br>
+                        <input id="text_content" name="text_content" type="text_content" value="{{ text_content }}"
+                               size="70">
+                        <br>
+                        <br><br><br>
+                        <h4>Your content hash is:</h4>
+                        <input id="content_hash" name="content_hash" type="content_hash" value="{{ content_hash }}"
+                               size="70">
+                        <br><br><br><br>
+
+                        <h4>Your signature is:</h4>
+                        <input id="signature" name="signature" type="signature" value="{{ signature  }}"
+                               size="70">
+                        <br><br><br><br>
+                        <h4>Signature Validity:</h4>
+                        <input id="valid" name="valid" type="valid" value="{{ valid }}"
+                               size="70">
+                        <br><br><br><br>
+                        <input type="submit" value="Update Page">
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+</form>
+</div>
+
+{% endblock %}
+
+

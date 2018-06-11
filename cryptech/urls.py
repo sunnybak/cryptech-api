@@ -28,4 +28,5 @@ urlpatterns = [
     path('origin/', views.step_two, name='origin'),
     path('explore/', views.step_three, name='explore'),
     path('', views.step_one, name='upload'),
+    path('verify/', views.verf, name='verify'),
 ]

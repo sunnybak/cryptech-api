@@ -13,7 +13,7 @@ from django.contrib.auth.decorators import login_required
 
 
 def index(request):
-    return HttpResponse('home')
+    return HttpResponse('best home page')
 
 @login_required
 @csrf_exempt
@@ -124,6 +124,33 @@ def file_hash(file_name):
             hasher.update(buf)
             buf = afile.read(BLOCKSIZE)
     return hasher.hexdigest()
+
+@csrf_exempt
+def verf(request):
+    context = dict()
+    myfile = request.FILES.get('myfile', None)
+    image = request.method == "POST" and myfile is not None and myfile != ''
+    if image:
+        fs = FileSystemStorage()
+        filename = fs.save(myfile.name, myfile)
+        context['content_hash'] = file_hash(filename)
+    else:
+        text = request.POST.get('text_content')
+        if text is not None:
+            context['text_content'] = text
+            context['content_hash'] = hash_msg(text)
+        else:
+            context['content_hash'] = ''
+
+    content_hash = request.POST.get('content_hash') or ''
+    public_key = request.POST.get('public_key') or ''
+    signature = request.POST.get('signature') or ''
+
+    context['public_key'] = public_key
+    context['signature'] = signature
+    context['valid'] = str(verify(content_hash, Sign(sign=signature), public_key))
+
+    return render(request, 'verify.html', context)
 
 
 class UserForm(forms.ModelForm):
