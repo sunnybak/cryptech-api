@@ -12,7 +12,7 @@
         <div class="col-sm-12 col-md-12">
             <div class="panel panel-default">
                 <div class="panel-body" align="center">
-                    <h3>Verify your photo:</h3>
+                    <h3>Verify your file:</h3>
                     {% if error_message %}
                     <p><strong>{{ error_message }}</strong></p>
                     {% endif %}
@@ -21,9 +21,10 @@
 
                         <label class="control-label col-sm-2" for="public_key">Public Key: </label><br>
                         <input id="public_key" name="public_key" type="text" value="{{ public_key }}" size="70">
-                        <h4>Upload a Photo:</h4>
+                        <br><br>
+                        <h4>Upload a file:</h4>
 
-                        <input type="file" name="myfile" accept="image/*" value=""><br><br><br><br>
+                        <input type="file" name="myfile" value=""><br><br>
                         <h4>Or paste an original writing...</h4><br>
                         <input id="text_content" name="text_content" type="text_content" value="{{ text_content }}"
                                size="70">
@@ -39,8 +40,9 @@
                                size="70">
                         <br><br><br><br>
                         <h4>Signature Validity:</h4>
-                        <input id="valid" name="valid" type="valid" value="{{ valid }}"
-                               size="70">
+                        <input id="valid" name="valid" type="valid" value="{{ valid }}" size="70">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?data={{ qr }}&amp;size=200x200&amp;ecc=H"/><br>
+                        <a href="{{ qr }}"><h4>link</h4></a>
                         <br><br><br><br>
                         <input type="submit" value="Update Page">
                     </form>

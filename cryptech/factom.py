@@ -101,4 +101,4 @@ def chain_get_entry(chain_id=None, entry_hash=None):
 
 if __name__ == "__main__":
 
-    print()
+    print(_encode(''))

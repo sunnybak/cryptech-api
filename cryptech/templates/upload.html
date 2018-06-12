@@ -54,14 +54,17 @@
                                 document.execCommand("copy");
                             }
                         </script>
-                                            <h4>Upload a Photo:</h4>
+                                            <h4>Upload a file:</h4>
 
-                        <input type="file" name="myfile" accept="image/*" value=""><br><br><br><br>
+                        <input type="file" accept="image/*;capture=camera" name="myfile">
+                        <!--<input type="file" name="myfile" value="">-->
+                        <br><br><br><br>
                         <h4>Or paste an original writing...</h4><br>
                         <input id="text_content" name="text_content" type="text_content" value="{{ text_content  }}"
                                size="70">
                         <br>
                         <br><br><br>
+
                         <h4>Your content hash is:</h4>
                         <input id="content_hash" name="content_hash" type="content_hash" value="{{ content_hash  }}"
                                size="70">
@@ -87,6 +90,7 @@
 </form>
 </div>
 
-{% endblock %}
 
+
+{% endblock %}
 

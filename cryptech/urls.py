@@ -25,8 +25,11 @@ urlpatterns = [
     path('login_user/', views.login_user, name='login_user'),
     path('logout_user/', views.logout_user, name='logout_user'),
     path('upload/', views.step_one, name='upload'),
+    path('test/', views.test, name='test'),
     path('origin/', views.step_two, name='origin'),
     path('explore/', views.step_three, name='explore'),
     path('', views.step_one, name='upload'),
     path('verify/', views.verf, name='verify'),
+    path('register/', views.UserFormView.as_view(), name='register'),
+    path('check/', views.check, name='check'),
 ]
