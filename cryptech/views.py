@@ -112,7 +112,7 @@ def explore(request):
         def __init__(self, entry_hash, content, ext_ids):
             self.entry_hash = entry_hash
             self.signature = content
-            ext_ids = [str(x, 'utf-8') for x in ext_ids]
+            ext_ids = [str(x, 'utf-8') if x != '' else x for x in ext_ids]
             try:
                 self.timestamp = time.strftime("%a, %d %b %Y %H:%M:%S", time.localtime(int(ext_ids[0])))
             except:
