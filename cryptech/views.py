@@ -222,7 +222,7 @@ def verf(request):
     context['public_key'] = public_key
     context['signature'] = signature
     context['valid'] = str(verify(content_hash, Sign(sign=signature), public_key))
-    context['qr'] = shorten('http://192.168.0.5:8000/check?'
+    context['qr'] = shorten('http://cryptech-api.herokuapp.com/check?'
                                    + 'u='+public_key
                                    +'&h='+content_hash
                                    +'&s='+signature)
