@@ -152,8 +152,9 @@ def test(request):
     if request.method == "POST" and myfile is not None and myfile != '':
         fs = FileSystemStorage()
         filename = fs.save('cryptech/static/webcam.jpg', myfile)
-    requests.request('GET', 'http://api.qrserver.com/v1/read-qr-code/?fileurl=cryptech-api.herokuapp.com/static/webcam.jpg')
-    return render(request, 'test.html', {})
+    res = requests.request('GET', 'http://api.qrserver.com/v1/read-qr-code/?fileurl=cryptech-api.herokuapp.com/static/webcam.jpg')
+    print(res.content)
+    return render(request, 'test.html', {'res':res.content})
 
 def shorten(url):
     key = '7250c6a4b2c45454e63558ce82f214aa0ffb64f8'
