@@ -94,7 +94,7 @@ def step_two(request):
             factom_info['external_ids'] = [str(x, 'utf-8') for x in factom_info['external_ids']]
             context['factom_info'] = factom_info
     context['signature'] = s.sign
-    context['qr'] = shorten('http://192.168.0.5:8000/check?'
+    context['qr'] = shorten('https://cryptech-api.herokuapp.com/check?'
                                    + 'u='+user_info['public_key']
                                    +'&h='+content_info['content_hash']
                                    +'&s='+s.sign)
@@ -148,13 +148,27 @@ def keys(request=None):
 
 @csrf_exempt
 def test(request):
+    print(request.GET)
+    print(request.POST)
+    print(request.FILES)
     myfile = request.FILES.get('webcam', None)
     if request.method == "POST" and myfile is not None and myfile != '':
         fs = FileSystemStorage()
         filename = fs.save('cryptech/static/webcam.jpg', myfile)
-    res = requests.request('GET', 'http://api.qrserver.com/v1/read-qr-code/?fileurl=cryptech-api.herokuapp.com/static/webcam.jpg')
-    print(res.content)
-    return render(request, 'test.html', {'res':res.content})
+
+    url = "http://api.qrserver.com/v1/read-qr-code/"
+
+    payload = "------WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Disposition: form-data; name=\"file\"; filename=\"webcam.jpg\"\r\nContent-Type: image/jpeg\r\n\r\n\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Disposition: form-data; name=\"MAX_FILE_SIZE\"\r\n\r\n1048576\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW--"
+    headers = {
+        'content-type': "multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW",
+        'Cache-Control': "no-cache",
+        'Postman-Token': "c687e713-15e6-4398-a9b5-65cb1eb71e52"
+    }
+
+    response = requests.request("POST", url, data=payload, headers=headers)
+
+    print(response.text, response.status_code)
+    return render(request, 'test.html', {'res':response.content})
 
 def shorten(url):
     key = '7250c6a4b2c45454e63558ce82f214aa0ffb64f8'

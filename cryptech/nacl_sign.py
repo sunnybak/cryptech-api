@@ -119,18 +119,40 @@ if __name__ == "__main__":
     # print(base64.b64encode(rk).decode('utf8'))
 # '38323534633332396139323835306636643533396464333712d4e3ca52b5c60ef18ab1dae3ff2e0c09d1df1ee1ba460cdfb215b858b70737fd13393019c0729d655a1d27c17ab265b881aaade8c7c95bc3c4b420490c6027d1e072c5980b0843bf70a9b8a5351095'
     import requests, json
-    key = '7250c6a4b2c45454e63558ce82f214aa0ffb64f8'
+    # key = '7250c6a4b2c45454e63558ce82f214aa0ffb64f8'
+    #
+    # guid = 'Bi6c31plwrT'
+    # url="http://google.com"
+    # payload = json.dumps({
+    #     "long_url": url,
+    #     "group_guid": guid
+    # })
+    # HEADERS = {'Content-Type': 'application/json', 'Authorization': key, 'Host': 'api-ssl.Bitly.com'}
+    # res = requests.request(method='POST', url='https://api-ssl.Bitly.com/v4/shorten', data=payload, headers=HEADERS)
+    # print(res.content)
+    # print(json.loads(res.content)['link'])
+    # import socket
+    #
+    # print(socket.gethostname())
 
-    guid = 'Bi6c31plwrT'
-    url="http://google.com"
-    payload = json.dumps({
-        "long_url": url,
-        "group_guid": guid
-    })
-    HEADERS = {'Content-Type': 'application/json', 'Authorization': key, 'Host': 'api-ssl.Bitly.com'}
-    res = requests.request(method='POST', url='https://api-ssl.Bitly.com/v4/shorten', data=payload, headers=HEADERS)
-    print(res.content)
-    print(json.loads(res.content)['link'])
-    import socket
+    # url = "http://api.qrserver.com/v1/read-qr-code/"
 
-    print(socket.gethostname())
+    # payload = {"Content-Disposition": "form-data", "name":"file", "filename":"webcam.jpg","Content-Type": "image/jpeg"}
+    # headers = {
+    #     'Content-Type': "multipart/form-data"
+    # }
+    # "Content-Type": "image/jpeg"
+    # payload = {"file": "webcam.jpg"}
+
+    url = "http://api.qrserver.com/v1/read-qr-code/"
+
+    payload = "------WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Disposition: form-data; name=\"file\"; filename=\"webcam.jpg\"\r\nContent-Type: image/jpeg\r\n\r\n\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Disposition: form-data; name=\"MAX_FILE_SIZE\"\r\n\r\n1048576\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW--"
+    headers = {
+        'content-type': "multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW",
+        'Cache-Control': "no-cache",
+        'Postman-Token': "c687e713-15e6-4398-a9b5-65cb1eb71e52"
+    }
+
+    response = requests.request("POST", 'http://127.0.0.1:8000/test/', data=payload, headers=headers)
+
+    print(response.text)

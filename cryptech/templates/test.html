@@ -1,43 +1,64 @@
 
-<html>
-<body>
-<head>
+<!--<html>-->
+<!--<body>-->
+<!--<head>-->
+<!--&lt;!&ndash;{% load staticfiles %}&ndash;&gt;-->
+<!--&lt;!&ndash;<script type="text/javascript" href="{% static webcam.js  %}"></script>&ndash;&gt;-->
+<!--&lt;!&ndash;<script type="text/javascript" href="{% static webcam.js  %}"></script>&ndash;&gt;-->
+<!--&lt;!&ndash;<script type="text/javascript" src="{% static webcam.swf  %}"></script>&ndash;&gt;-->
+<!--</head>-->
 <!--{% load staticfiles %}-->
-<!--<script type="text/javascript" href="{% static webcam.js  %}"></script>-->
-<!--<script type="text/javascript" href="{% static webcam.js  %}"></script>-->
-<!--<script type="text/javascript" src="{% static webcam.swf  %}"></script>-->
-</head>
-{% load staticfiles %}
-{% load static %}
-<script src="{% static 'webcam.js' %}"></script>
-<!--<script src="webcam.js"></script>-->
-<!--<form enctype="multipart/form-data" action="http://api.qrserver.com/v1/read-qr-code/" method="POST">-->
-	<div id="my_camera" style="width:320px; height:240px;"></div>
-	<div id="myfile"></div>
+<!--{% load static %}-->
+<!--<script src="{% static 'webcam.js' %}"></script>-->
+<!--&lt;!&ndash;<script src="webcam.js"></script>&ndash;&gt;-->
+<!--&lt;!&ndash;<form enctype="multipart/form-data" action="http://api.qrserver.com/v1/read-qr-code/" method="POST">&ndash;&gt;-->
+	<!--<div id="my_camera" style="width:320px; height:240px;"></div>-->
+	<!--<div id="myfile"></div>-->
 
-	<script language="JavaScript">
+	<!--<script language="JavaScript">-->
+		<!--Webcam.attach( '#my_camera' );-->
+
+		<!--function take_snapshot() {-->
+<!--Webcam.snap( function(data_uri) {-->
+		<!--Webcam.upload(data_uri, "/test/", function(code, text) {-->
+			<!--// Upload complete!-->
+			<!--// 'code' will be the HTTP response code from the server, e.g. 200-->
+			<!--// 'text' will be the raw response content-->
+            <!--document.getElementById('my_result').innerHTML = text;-->
+		<!--} );} );}-->
+	<!--</script>-->
+
+	<!--<a href="javascript:void(take_snapshot())">Take Snapshot</a>-->
+	<!--<img src="{% static 'webcam.jpg' %}">-->
+
+<!--</form>-->
+
+<!--</body>-->
+<!--</html>-->
+
+<html>
+<script src="{% static 'webcam.js' %}"></script>
+
+	<div id="my_camera" style="width:320px; height:240px;"></div>
+	<!--<div id="myfile"></div>-->
+
+<script language="JavaScript">
 		Webcam.attach( '#my_camera' );
 
 		function take_snapshot() {
 Webcam.snap( function(data_uri) {
-		// snap complete, image data is in 'data_uri'
-
-		Webcam.upload(data_uri, "/test/", function(code, text) {
-			// Upload complete!
-			// 'code' will be the HTTP response code from the server, e.g. 200
-			// 'text' will be the raw response content
-            document.getElementById('my_result').innerHTML = text;
-		} );
-
-	} );
-		}
+		var raw_image_data = data_uri.replace(/^data\:image\/\w+\;base64\,/, '');
+		document.getElementById('mydata').value = raw_image_data;
+		document.getElementById('myform').submit();
+	} );}
 	</script>
+<form id="myform" enctype="multipart/form-data" action="http://api.qrserver.com/v1/read-qr-code/" method="POST">
+<input type="hidden" name="MAX_FILE_SIZE" value="1048576" />
+<!--<input name="file" type="file" />-->
+    <input id="mydata" type="hidden" name="file" value=""/>
+<!--<input type="submit" value="Read QR code" />-->
+    	<a href="javascript:void(take_snapshot())">Take Snapshot</a>
 
-	<a href="javascript:void(take_snapshot())">Take Snapshot</a>
-	<!--<img src="{% static 'webcam.jpg' %}">-->
-
-    <!--<input type="submit" value="Read QR code" />-->
-<!--</form>-->
+</form>
 {{ res }}
-</body>
 </html>
