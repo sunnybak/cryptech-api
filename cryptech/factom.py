@@ -29,16 +29,10 @@ def _get_env_param(param):
     return f[param]
 
 
-try:
-    API = _get_env_param('FACTOM_HOST')
-    KEY = _get_env_param('FACTOM_KEY')
-    CHAIN = _get_env_param('FACTOM_CHAIN')
-    URL = API + '/' + VERSION
-except:
-    API = os.environ.get('FACTOM_HOST')
-    KEY = os.environ.get('FACTOM_KEY')
-    CHAIN = os.environ.get('FACTOM_CHAIN')
-    URL = API + '/' + VERSION
+API = _get_env_param('FACTOM_HOST') or 'https://apiplus-api-sandbox-testnet.factom.com'
+KEY = _get_env_param('FACTOM_KEY') or 'LJBTJjewwSP4ijD0KVcgLvEPWz5yHwg7Wxd30U5PsojhTGr6'
+CHAIN = _get_env_param('FACTOM_CHAIN') or '8c043d7558276390b5767672bb6dbb6e5c339798e0698408740a408ccd54f1a7'
+URL = API + '/' + VERSION
 
 HEADERS = {
    "Content-Type": "application/json",
