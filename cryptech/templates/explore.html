@@ -40,7 +40,7 @@ Block Explorer
                 <div class="panel-body">
 
 
-                    <div id="datatableheader">MediaChain Explorer</div>
+                    <div id="datatableheader">Chain Explorer</div>
 
                     </div>
 
@@ -53,21 +53,34 @@ Block Explorer
                           <div  class="tbl-header">
                             <table cellpadding="0" cellspacing="0" border="0">
                                 <thead>
-                                    <th>Link </th>
                                     <th>Entry Hash</th>
+                                    <th>Timestamp (GMT)</th>
+                                    <th>Public Key</th>
+                                    <th>Content Hash</th>
+                                    <th>Memo</th>
                                 </thead>
                             </table>
                           </div>
 
                             <table cellpadding="0" cellspacing="0" border="0" class = "table">
                               <tbody>
-                                 {% for data in dataset %}
+                                 {% for block in chain %}
                                 <tr>
                                     <td>
-                                        <a href="{{ data.links }}">{{data.links}}</a>
+                                        {{block.entry_hash}}
                                     </td>
                                     <td>
-                                        {{ data.entry_hash }}
+                                        {{ block.timestamp }}
+                                    </td>
+                                    <td>
+                                        {{ block.public_key }}
+                                    </td>
+                                    <td>
+                                        {{ block.content_hash }}
+                                    </td>
+                                    <td>
+                                        {{ block.memo }}
+                                    </td>
                                 </tr>
                             {% endfor %}
                         </tbody>

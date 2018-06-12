@@ -1,7 +1,7 @@
 from django.http import HttpResponse
 import hashlib
 from cryptech import factom
-from cryptech.nacl_sign import *
+import cryptech.crypt as crypt
 from django.views.decorators.csrf import csrf_exempt
 from django.core.files.storage import FileSystemStorage
 from django.views.generic import View
@@ -10,7 +10,7 @@ from django.contrib.auth import authenticate, login, logout
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
-import requests, json
+import requests, json, time
 
 
 def index(request):
@@ -19,106 +19,170 @@ def index(request):
 
 # @login_required
 @csrf_exempt
-def step_one(request):
-    # ext_ids = ['mediachain', str(int(time.time()))]
-    # content ='Chain for copyrights, patents, and create asset protection'
-    # chain_id = str(factom.create_chain(external_ids=ext_ids, content=content))
-    # 'chain id = fb8d30c54e846b2bd7f1f5f68145c309be4c1885def89f05954dc89ce0878206'
-    # 'entry hash = 3cbbae26e73cfeaa8d1566bef45b14a5814e018780e965d3a1366f7fa1431bf6'
+def upload(request):
 
-    context = dict()
-    content_hash = request.POST.get('content_hash') or ''
+    fields = ['public_key', 'private_key', 'memo', 'raw_nonce', 'nonce', 'content_hash']
+    context = process_request(request, fields)
+
+    # get file or text if input present
     myfile = request.FILES.get('myfile', None)
-    file = request.method == "POST" and myfile is not None and myfile != ''
-    if content_hash == '':
-        if file:
+    if context['content_hash'] == '':
+        if request.method == "POST" and myfile is not None and myfile != '':
             fs = FileSystemStorage()
             filename = fs.save(myfile.name, myfile)
-            context['content_hash'] = file_hash(filename)
-        else:
-            text = request.POST.get('text_content')
-            if text is not None and text != '':
-                context['text_content'] = text
-                context['content_hash'] = hash_msg(text)
-            else:
-                context['content_hash'] = ''
-        content_hash = context['content_hash']
-    else:
-        context['content_hash'] = content_hash
+            context['content_hash'] = crypt.file_hash(filename)
 
-    private_key, public_key = generate_keys()
+    text = context['memo']
+    if text is not None and text != '':
+        context['memo'] = text
+
+    # generate public-private key pair
+    private_key, public_key = crypt.generate_keys()
     context['public_key'] = public_key
     context['private_key'] = private_key
-    # context['raw_nonce'] = request.user.username + User.objects.get(username=request.user.username).email
-    context['raw_nonce'] = request.POST.get('raw_nonce') or ''
-    # context['nonce'] = str(nonce(hash_msg(request.user.username + User.objects.get(username=request.user.username).email)),'utf-8')
-    if context['raw_nonce'] == '':
-        context['nonce'] = ''
+
+    # create nonce
+    if context['raw_nonce'] != '':
+        context['nonce'] = crypt.create_nonce(seed=context['raw_nonce'])
     else:
-        context['nonce'] = create_nonce(seed=context['raw_nonce'])
+        context['nonce'] = ''
+    # context['raw_nonce'] = request.user.username + User.objects.get(username=request.user.username).email
+    # context['nonce'] = str(nonce(hash_msg(request.user.username + User.objects.get(username=request.user.username).email)),'utf-8')
+
     return render(request, 'upload.html', context)
 
 
 # @login_required
 @csrf_exempt
-def step_two(request):
+def origin(request):
     context = dict()
     fields_user = ['private_key', 'public_key']
-    fields_content = ['chain_id', 'timestamp', 'content_hash', 'signature', 'verified']
+    fields_content = ['timestamp', 'content_hash', 'signature', 'verified', 'nonce', 'qr', 'memo']
+    fields_factom = ['chain_id', 'entry_hash', 'content', 'external_ids']
+
     user_info = process_request(request, fields_user)
     content_info = process_request(request, fields_content)
+    factom_info = process_request(request, fields_factom)
 
+    # updating the content fields
     content_info['timestamp'] = str(int(time.time()))
-    content_info['chain_id'] = 'fb8d30c54e846b2bd7f1f5f68145c309be4c1885def89f05954dc89ce0878206'
-    # n = nonce(hash_msg(request.user.username + User.objects.get(username=request.user.username).email))
-    n = request.POST.get('nonce')
-    s = Sign(content_info['content_hash'], user_info['private_key'], nonce=create_nonce(nonce=n))
+    s = crypt.Sign(content_info['content_hash'],
+                   user_info['private_key'],
+                   nonce=crypt.create_nonce(nonce=content_info['nonce']))
     content_info['signature'] = s.sign
-    content_info['verified'] = str(verify(content_info['content_hash'], s, user_info['public_key']))
-    context['content_info'] = content_info
-    context['user_info'] = user_info
-    entry_hash = factom.chain_add_entry(chain_id='fb8d30c54e846b2bd7f1f5f68145c309be4c1885def89f05954dc89ce0878206',
-                                        external_ids=[user_info['public_key'], content_info['content_hash'],
-                                                      content_info['timestamp']],
+    content_info['verified'] = str(crypt.verify(content_info['content_hash'], s, user_info['public_key']))
+    content_info['qr'] = shorten(host='http://cryptech-api.herokuapp.com/check?',
+                                 u=user_info['public_key'],
+                                 h=content_info['content_hash'],
+                                 s=s.sign)
+
+    # updating the factom fields
+    entry_hash = factom.chain_add_entry(chain_id=factom._get_chain_id(),
+                                        external_ids=[content_info['timestamp'],
+                                                      user_info['public_key'],
+                                                      content_info['content_hash'],
+                                                      content_info['memo']],
                                         content=content_info['signature']
                                         )['entry_hash'] or None
-    print(entry_hash)
-    if entry_hash:
-        content_info['entry_hash'] = entry_hash
+    if entry_hash is not None:
+        factom_info['entry_hash'] = entry_hash
         entry_object = factom.chain_get_entry(
-            chain_id='fb8d30c54e846b2bd7f1f5f68145c309be4c1885def89f05954dc89ce0878206', entry_hash=entry_hash)
+            chain_id=factom._get_chain_id(), entry_hash=entry_hash)
         if entry_object is not None:
-            factom_info = entry_object
-            factom_info['content'] = str(factom._decode(factom_info['content']), 'utf-8')
-            factom_info['links'] = factom_info['links']['chain']
-            factom_info['external_ids'] = [str(x, 'utf-8') for x in factom_info['external_ids']]
-            context['factom_info'] = factom_info
-    context['signature'] = s.sign
-    context['qr'] = shorten('https://cryptech-api.herokuapp.com/check?'
-                                   + 'u='+user_info['public_key']
-                                   +'&h='+content_info['content_hash']
-                                   +'&s='+s.sign)
+            factom_info['content'] = str(factom._decode(entry_object['content']), 'utf-8')
+            factom_info['external_ids'] = [str(x, 'utf-8') for x in entry_object['external_ids']]
+    factom_info['chain_id'] = factom._get_chain_id()
+
+    # updating the context
+    context['content_info'] = content_info
+    context['user_info'] = user_info
+    context['factom_info'] = factom_info
+
     return render(request, 'origin.html', context)
 
 
 # @login_required
 @csrf_exempt
-def step_three(request):
+def explore(request):
     context = dict()
-    dataset = []
+    chain = []
 
-    class data(object):
-        def __init__(self, links, entry_hash):
-            self.links = links
+    # defining data object
+    class block(object):
+        def __init__(self, entry_hash, content, ext_ids):
             self.entry_hash = entry_hash
+            self.signature = content
+            ext_ids = [str(x, 'utf-8') for x in ext_ids]
+            try:
+                self.timestamp = time.strftime("%a, %d %b %Y %H:%M:%S", time.localtime(int(ext_ids[0])))
+            except:
+                self.timestamp = '0'
+            self.public_key = ext_ids[1]
+            self.content_hash = ext_ids[2]
+            self.memo = ext_ids[3]
 
-    fce = factom.chain_entries('fb8d30c54e846b2bd7f1f5f68145c309be4c1885def89f05954dc89ce0878206')['items']
-    for entry in fce:
-        dataset.append(data(entry['links']['entry'], entry['entry_hash']))
+    # creating blocks by fetching Factom entries
+    entry_list = factom.chain_entries(factom._get_chain_id())['items'][-10:]
+    for e_hash in entry_list:
+        entry = factom.chain_get_entry(factom._get_chain_id(), e_hash['entry_hash'])
+        chain.append(block(entry['entry_hash'], entry['content'], entry['external_ids']))
 
-    context['dataset'] = dataset
+    context['chain'] = sorted(chain, key=lambda x: x.timestamp, reverse=True)
 
     return render(request, 'explore.html', context)
+
+
+@csrf_exempt
+def verify(request):
+
+    fields = ['public_key', 'memo', 'content_hash', 'signature', 'verified', 'qr']
+    submitted_context = process_request(request, fields)
+    context = dict()
+    for f in fields: context[f] = submitted_context[f]
+
+    # get file or text if input present
+    myfile = request.FILES.get('myfile', None)
+    if submitted_context['content_hash'] == '':
+        if request.method == "POST" and myfile is not None and myfile != '':
+            fs = FileSystemStorage()
+            filename = fs.save(myfile.name, myfile)
+            context['content_hash'] = crypt.file_hash(filename)
+        else:
+            text = submitted_context['memo']
+            if text is not None and text != '':
+                context['memo'] = text
+                context['content_hash'] = crypt.hash_msg(text)
+
+    # verify the file
+    context['verified'] = str(crypt.verify(msg=context['content_hash'],
+                                        sign=crypt.Sign(sign=context['signature']),
+                                        auth_pk=context['public_key']))
+    # get the qr code
+    context['qr'] = shorten(host='http://cryptech-api.herokuapp.com/check?',
+                                 u=context['public_key'],
+                                 h=context['content_hash'],
+                                 s=context['signature'])
+
+    return render(request, 'verify.html', context)
+
+
+@csrf_exempt
+def check(request):
+    s = request.GET.get('s')
+    u = request.GET.get('u')
+    h = request.GET.get('h')
+    v = crypt.verify(h, crypt.Sign(sign=s), u)
+    print(request.GET) or None
+    print(request.POST) or None
+    if v == True:
+        return render(request, 'check.html',{'status':'Success!','desc':'Your signature is valid!','color':'lightgreen'})
+    return render(request, 'check.html',{'status':'Rejected','desc':'Your signature is not valid.','color':'lightcoral'})
+
+
+@csrf_exempt
+def keys(request=None):
+    private_key, public_key = crypt.generate_keys()
+    return HttpResponse("Private Key: " + private_key + "<br>Public Key: " + public_key)
 
 
 def process_request(request, fields):
@@ -129,22 +193,6 @@ def process_request(request, fields):
         query[f] = x
     return query
 
-
-def check(request):
-    s = request.GET.get('s')
-    u = request.GET.get('u')
-    h = request.GET.get('h')
-    v = verify(h, Sign(sign=s), u)
-    print(request.GET) or None
-    print(request.POST) or None
-    if v == True:
-        return render(request, 'check.html',{'status':'Success!','desc':'Your signature is valid!','color':'lightgreen'})
-    return render(request, 'check.html',{'status':'Rejected','desc':'Your signature is not valid.','color':'lightcoral'})
-
-
-def keys(request=None):
-    private_key, public_key = generate_keys()
-    return HttpResponse("Private Key: " + private_key + "<br>Public   Key: " + public_key)
 
 @csrf_exempt
 def test(request):
@@ -170,63 +218,24 @@ def test(request):
     print(response.text, response.status_code)
     return render(request, 'test.html', {'res':response.content})
 
-def shorten(url):
+
+def shorten(host, s, u, h):
     key = '7250c6a4b2c45454e63558ce82f214aa0ffb64f8'
     guid = 'Bi6c31plwrT'
+
+    url = host \
+            + 'u=' + u \
+            + '&h=' + h \
+            + '&s=' + s
+
     payload = json.dumps({
         "long_url": url,
         "group_guid": guid
     })
+
     HEADERS = {'Content-Type': 'application/json', 'Authorization': key, 'Host': 'api-ssl.Bitly.com'}
     res = requests.request(method='POST', url='https://api-ssl.Bitly.com/v4/shorten', data=payload, headers=HEADERS)
-    return(json.loads(res.content)['link'])
-
-
-def file_hash(file_name):
-    BLOCKSIZE = 65536
-    hasher = hashlib.sha1()
-    with open(file_name, 'rb') as afile:
-        buf = afile.read(BLOCKSIZE)
-        while len(buf) > 0:
-            hasher.update(buf)
-            buf = afile.read(BLOCKSIZE)
-    return hasher.hexdigest()
-
-
-@csrf_exempt
-def verf(request):
-    context = dict()
-    content_hash = request.POST.get('content_hash') or ''
-    print(content_hash)
-    myfile = request.FILES.get('myfile', None)
-    file = request.method == "POST" and myfile is not None and myfile != ''
-    if content_hash == '':
-        if file:
-            fs = FileSystemStorage()
-            filename = fs.save(myfile.name, myfile)
-            context['content_hash'] = file_hash(filename)
-        else:
-            text = request.POST.get('text_content')
-            if text is not None and text != '':
-                context['text_content'] = text
-                context['content_hash'] = hash_msg(text)
-            else:
-                context['content_hash'] = ''
-        content_hash = context['content_hash']
-    else:
-        context['content_hash'] = content_hash
-
-    public_key = request.POST.get('public_key') or ''
-    signature = request.POST.get('signature') or ''
-
-    context['public_key'] = public_key
-    context['signature'] = signature
-    context['valid'] = str(verify(content_hash, Sign(sign=signature), public_key))
-    context['qr'] = shorten('http://cryptech-api.herokuapp.com/check?'
-                                   + 'u='+public_key
-                                   +'&h='+content_hash
-                                   +'&s='+signature)
-    return render(request, 'verify.html', context)
+    return json.loads(res.content)['link'] or ''
 
 
 class UserForm(forms.ModelForm):
@@ -280,7 +289,7 @@ def login_user(request):
         if user is not None:
             if user.is_active:
                 login(request, user)
-                return step_one(request)
+                return upload(request)
 
             else:
                 return render(request, 'login.html', {'error_message': 'Your account has been disabled'})
@@ -296,3 +305,9 @@ def logout_user(request):
         "form": form,
     }
     return render(request, 'login.html', context)
+
+# ext_ids = ['mediachain', str(int(time.time()))]
+    # content ='Chain for copyrights, patents, and create asset protection'
+    # chain_id = str(factom.create_chain(external_ids=ext_ids, content=content))
+    # 'chain id = fb8d30c54e846b2bd7f1f5f68145c309be4c1885def89f05954dc89ce0878206'
+    # 'entry hash = 3cbbae26e73cfeaa8d1566bef45b14a5814e018780e965d3a1366f7fa1431bf6'

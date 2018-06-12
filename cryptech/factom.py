@@ -4,8 +4,9 @@ import requests
 import json
 import base64
 
-API = os.environ.get('FACTOM_HOST') or "https://apiplus-api-sandbox-testnet.factom.com"
-KEY = os.environ.get('FACTOM_KEY') or "LJBTJjewwSP4ijD0KVcgLvEPWz5yHwg7Wxd30U5PsojhTGr6"
+API = os.environ.get('FACTOM_HOST')
+KEY = os.environ.get('FACTOM_KEY')
+CHAIN = os.environ.get('FACTOM_CHAIN')
 URL = API + '/' + VERSION
 
 HEADERS = {
@@ -51,6 +52,9 @@ def create_chain(external_ids=None, content=None, callback_url=None, callback_st
     _ids = [ _encode(extid) for extid in external_ids ]
     payload = json.dumps({"external_ids": _ids, "content": _encode(content) })
     res = requests.request("POST", URL + '/chains', data=payload, headers=HEADERS)
+    _set_env({
+        'FACTOM_CHAIN' : json.loads(res.content)['chain_id']
+    })
     return _decode_response(res.content)
 
 def chain_search(external_ids=None):
@@ -99,6 +103,35 @@ def chain_get_entry(chain_id=None, entry_hash=None):
     res = requests.request("GET", URL + '/chains/%s/entries/%s' % (chain_id, entry_hash), headers=HEADERS)
     return _decode_response(res.content)
 
+def _set_env(params):
+    env_file = open('../.env', 'r')
+    f = env_file.read().split('\n')
+    f = [x.split('=') for x in f]
+    f = {x[0].replace('"','') : x[1].replace('"','') for x in f if len(x) == 2}
+    for key in params.keys():
+        f[key] = params[key]
+    env_file.close()
+    env_file = open('.env', 'w')
+    for key in f.keys():
+        env_file.write(key + '="' + f[key] + '"\n')
+    env_file.close()
+
+def _get_chain_id():
+    print(os.path.dirname(os.path.realpath(__file__)))
+    env_file = open('.env', 'r')
+    f = env_file.read().split('\n')
+    f = [x.split('=') for x in f]
+    f = {x[0].replace('"', ''): x[1].replace('"', '') for x in f if len(x) == 2}
+    return f['FACTOM_CHAIN']
+
+
 if __name__ == "__main__":
 
-    print(_encode(''))
+    ext_ids = ['Timestamp', 'Public Key', 'Content Hash', 'Memo']
+    content = 'Signature'
+    # print(create_chain(external_ids=ext_ids, content=content))
+    # print(_get_chain_id())
+    entries = chain_entries(CHAIN)['items'][-4:]
+    # for e in entries:
+    #     print(chain_get_entry(CHAIN, e['entry_hash']))
+    print(entries)

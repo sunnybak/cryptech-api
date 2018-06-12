@@ -2,15 +2,15 @@ import nacl.utils
 from nacl.public import PrivateKey, PublicKey, Box
 from nacl.encoding import Base64Encoder
 import nacl.signing, nacl.hash
-import time
-import os
+import os, hashlib
 
 def create_nonce(nonce=None, seed=None):
     if seed:
         hashed_seed = hash_msg(seed)
+        if seed == '': create_nonce(seed='0'*100)
         return str(bytes(hashed_seed[0:24].ljust(24, '\0'), 'utf-8'),'utf-8')
     if nonce and type(nonce).__name__ == 'str':
-        # if nonce == '': create_nonce(seed='0'*100)
+        if nonce == '': create_nonce(seed='0'*100)
         nonce = bytes(nonce, 'utf-8')
     return nonce
 
@@ -35,6 +35,17 @@ def generate_keys():
 
 def hash_msg(msg):
     return nacl.hash.sha256(bytes(msg, 'utf-8'), encoder=nacl.encoding.HexEncoder).decode('utf-8')
+
+
+def file_hash(file_name):
+    BLOCKSIZE = 65536
+    hasher = hashlib.sha1()
+    with open(file_name, 'rb') as afile:
+        buf = afile.read(BLOCKSIZE)
+        while len(buf) > 0:
+            hasher.update(buf)
+            buf = afile.read(BLOCKSIZE)
+    return hasher.hexdigest()
 
 
 def sign(msg, auth_rk, PUB_uk, nonce=None):
@@ -152,7 +163,30 @@ if __name__ == "__main__":
         'Cache-Control': "no-cache",
         'Postman-Token': "c687e713-15e6-4398-a9b5-65cb1eb71e52"
     }
+    #
+    # response = requests.request("POST", 'http://127.0.0.1:8000/test/', data=payload, headers=headers)
+    #
+    # print(response.text)
 
-    response = requests.request("POST", 'http://127.0.0.1:8000/test/', data=payload, headers=headers)
+    from qrtools.qrtools import QR
+    import zbar
 
-    print(response.text)
+
+    # my_QR = QR(filename="/Users/sbakhda/dev/cryptech/cryptech/static/webcam.jpg")
+
+    # decodes the QR code and returns True if successful
+    # my_QR.decode()
+
+    # prints the data
+    # print(my_QR.data)
+
+    from PIL import Image
+    import zbarlight
+
+    file_path = 'webcam.jpg'
+    with open(file_path, 'rb') as image_file:
+        image = Image.open(image_file)
+        image.load()
+
+    codes = zbarlight.scan_codes(['qrcode'], image)
+    print('QR codes: %s' % codes)
