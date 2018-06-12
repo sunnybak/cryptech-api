@@ -28,14 +28,17 @@ def _get_env_param(param):
     env_file.close()
     return f[param]
 
-# API = os.environ.get('FACTOM_HOST')
-# KEY = os.environ.get('FACTOM_KEY')
-# CHAIN = os.environ.get('FACTOM_CHAIN')
 
-API = _get_env_param('FACTOM_HOST')
-KEY = _get_env_param('FACTOM_KEY')
-CHAIN = _get_env_param('FACTOM_CHAIN')
-URL = API + '/' + VERSION
+try:
+    API = _get_env_param('FACTOM_HOST')
+    KEY = _get_env_param('FACTOM_KEY')
+    CHAIN = _get_env_param('FACTOM_CHAIN')
+    URL = API + '/' + VERSION
+except:
+    API = os.environ.get('FACTOM_HOST')
+    KEY = os.environ.get('FACTOM_KEY')
+    CHAIN = os.environ.get('FACTOM_CHAIN')
+    URL = API + '/' + VERSION
 
 HEADERS = {
    "Content-Type": "application/json",
