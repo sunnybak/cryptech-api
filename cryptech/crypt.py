@@ -30,7 +30,8 @@ def decrypt(msg, cipher):
 def generate_keys():
     rk = PrivateKey.generate()
     uk = rk.public_key
-    return nacl.encoding.HexEncoder.encode(bytes(rk)).decode('utf-8'), nacl.encoding.HexEncoder.encode(bytes(uk)).decode('utf-8')
+    return {'private_key': nacl.encoding.HexEncoder.encode(bytes(rk)).decode('utf-8'),
+            'public_key' : nacl.encoding.HexEncoder.encode(bytes(uk)).decode('utf-8')}
 
 
 def hash_msg(msg):
@@ -59,6 +60,14 @@ def verify(msg, sign, auth_pk):
         return decrypt(sign.sign, create_cipher(sign.rk, auth_pk)) == msg
     except:
         return False
+
+
+def verify_nonce(seed, sign):
+    sign = sign[0:48]
+    nonce_sign = Sign(msg='0', auth_rk='0' * 64, nonce=create_nonce(seed=seed)).sign[0:48]
+    print(sign)
+    print(nonce_sign)
+    return sign == nonce_sign
 
 
 class Sign(object):
@@ -180,13 +189,38 @@ if __name__ == "__main__":
     # prints the data
     # print(my_QR.data)
 
-    from PIL import Image
-    import zbarlight
+    # from PIL import Image
+    # import zbarlight
+    #
+    # file_path = 'webcam.jpg'
+    # with open(file_path, 'rb') as image_file:
+    #     image = Image.open(image_file)
+    #     image.load()
+    #
+    # codes = zbarlight.scan_codes(['qrcode'], image)
+    # print('QR codes: %s' % codes)
 
-    file_path = 'webcam.jpg'
-    with open(file_path, 'rb') as image_file:
-        image = Image.open(image_file)
-        image.load()
+    uk = '8a6953509ab98d41302c483035acbb380388b770a1cf578665b88490d271d842'
+    rk = '9d53077ce5d42cda2383a816c5d774a5464e4372cfe725469624cfaee6270ca0'
+    rk2 = '9d5307ece5a42caa238aa816c5d774a5464e4372cfe725469624cfaee6270ca1'
 
-    codes = zbarlight.scan_codes(['qrcode'], image)
-    print('QR codes: %s' % codes)
+    def sp(s):
+        print(s.sign[:48] + '\t' + s.sign[48:])
+
+    def check_nonce(nonce_seed, sign):
+        sign = sign[0:48]
+        nonce_sign = Sign(msg='0', auth_rk='0'*64, nonce=create_nonce(seed=nonce_seed)).sign[0:48]
+        return nonce_sign == sign
+
+    s = Sign(msg='shikhar',auth_rk=rk, nonce=create_nonce(seed='nonce'))
+    s2 = Sign(msg='shikhar',auth_rk=rk2, nonce=create_nonce(seed='nonce'))
+    s3 = Sign(msg='shikhar',auth_rk=rk, nonce=create_nonce(seed='nonce1'))
+    s4 = Sign(msg='shikhar',auth_rk=rk, nonce=create_nonce(seed='nonce1'))
+
+    print(check_nonce('nonce', s.sign))
+
+
+    sp(s)
+    sp(s2)
+    sp(s3)
+    sp(s4)

@@ -22,24 +22,22 @@
                         <label class="control-label col-sm-2" for="public_key">Public Key: </label><br>
                         <input id="public_key" name="public_key" type="text" value="{{ public_key }}" size="70">
                         <br><br>
+
+                        <label class="control-label col-sm-2" for="seed_hash">Enter seed hash: </label><br>
+                        <input id="seed_hash" name="seed_hash" type="text" value="{{ seed_hash }}" size="70">
+                        <br><br>
                         <h4>Upload a file:</h4>
 
                         <input type="file" name="myfile" value=""><br><br>
-                        <h4>Or paste an original writing...</h4><br>
-                        <input id="memo" name="memo" type="memo" value="{{ memo }}"
+                        <h4>Content Hash</h4>
+                        <input id="content_hash" name="content_hash" type="text" value="{{ content_hash }}"
                                size="70">
-                        <br>
-                        <br><br><br>
-                        <!--<h4>Your content hash is:</h4>-->
-                        <!--<input id="content_hash" name="content_hash" type="content_hash" value="{{ content_hash }}"-->
-                               <!--size="70">-->
-                        <!--<br><br><br><br>-->
-
-                        <h4>Your signature is:</h4>
+                        <br><br><br><br>
+                        <h4>Signature to verify:</h4>
                         <input id="signature" name="signature" type="signature" value="{{ signature  }}"
                                size="70">
                         <br><br><br><br>
-                        <h4>Signature Validity:</h4>
+                        <h4>Signature Validity QR:</h4>
                         <!--<input id="valid" name="valid" type="valid" value="{{ valid }}" size="70">-->
                         <img src="https://api.qrserver.com/v1/create-qr-code/?data={{ qr }}&amp;size=200x200&amp;ecc=H"/><br>
                         <a href="{{ qr }}"><h4>link</h4></a>

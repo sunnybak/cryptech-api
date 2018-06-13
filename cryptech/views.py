@@ -37,9 +37,9 @@ def upload(request):
         context['memo'] = text
 
     # generate public-private key pair
-    private_key, public_key = crypt.generate_keys()
-    context['public_key'] = public_key
-    context['private_key'] = private_key
+    k = crypt.generate_keys()
+    context['public_key'] = k['public_key']
+    context['private_key'] = k['private_key']
 
     # create nonce
     if context['raw_nonce'] != '':
@@ -71,10 +71,11 @@ def origin(request):
                    nonce=crypt.create_nonce(nonce=content_info['nonce']))
     content_info['signature'] = s.sign
     content_info['verified'] = str(crypt.verify(content_info['content_hash'], s, user_info['public_key']))
-    content_info['qr'] = shorten(host='http://cryptech-api.herokuapp.com/check?',
+    content_info['qr'] = shorten(host='127.0.0.1:8000/check?/',
                                  u=user_info['public_key'],
                                  h=content_info['content_hash'],
-                                 s=s.sign)
+                                 s=s.sign,
+                                 n=content_info['nonce'])
 
     # updating the factom fields
     entry_hash = factom.chain_add_entry(chain_id=factom._get_chain_id(),
@@ -135,34 +136,37 @@ def explore(request):
 @csrf_exempt
 def verify(request):
 
-    fields = ['public_key', 'memo', 'content_hash', 'signature', 'verified', 'qr']
-    submitted_context = process_request(request, fields)
-    context = dict()
-    for f in fields: context[f] = submitted_context[f]
+    fields = ['public_key', 'memo', 'content_hash', 'signature', 'verified', 'qr', 'seed_hash']
+    context = process_request(request, fields)
 
     # get file or text if input present
     myfile = request.FILES.get('myfile', None)
-    if submitted_context['content_hash'] == '':
+    if context['content_hash'] == '':
         if request.method == "POST" and myfile is not None and myfile != '':
             fs = FileSystemStorage()
             filename = fs.save(myfile.name, myfile)
             context['content_hash'] = crypt.file_hash(filename)
-        else:
-            text = submitted_context['memo']
-            if text is not None and text != '':
-                context['memo'] = text
-                context['content_hash'] = crypt.hash_msg(text)
 
-    # verify the file
-    context['verified'] = str(crypt.verify(msg=context['content_hash'],
-                                        sign=crypt.Sign(sign=context['signature']),
-                                        auth_pk=context['public_key']))
-    # get the qr code
-    context['qr'] = shorten(host='http://cryptech-api.herokuapp.com/check?',
-                                 u=context['public_key'],
-                                 h=context['content_hash'],
-                                 s=context['signature'])
+    text = context['memo']
+    if text is not None and text != '':
+        context['memo'] = text
 
+    # verify the signature
+    if context['content_hash'] == '' or context['signature'] == '' or context['public_key'] == '':
+        context['verified'] = 'Enter fields'
+        context['qr'] = '/verify/'
+    else:
+        context['verified'] = crypt.verify(msg=context['content_hash'],
+                                            sign=crypt.Sign(sign=context['signature']),
+                                            auth_pk=context['public_key'])
+        # get the qr code
+        context['qr'] = shorten(host='127.0.0.1:8000/check?/',
+                                     u=context['public_key'],
+                                     h=context['content_hash'],
+                                     s=context['signature'],
+                                     n=context['seed_hash'])
+    # verify the nonce
+    context['verified'] = str(context['verified'] and crypt.verify_nonce(seed=context['seed_hash'],sign=context['signature']))
     return render(request, 'verify.html', context)
 
 
@@ -171,18 +175,18 @@ def check(request):
     s = request.GET.get('s')
     u = request.GET.get('u')
     h = request.GET.get('h')
-    v = crypt.verify(h, crypt.Sign(sign=s), u)
-    print(request.GET) or None
-    print(request.POST) or None
-    if v == True:
+    n = request.GET.get('n')
+    vs = crypt.verify(h, crypt.Sign(sign=s), u)
+    vn = crypt.verify_nonce(seed=n, sign=s)
+    if vs and vn:
         return render(request, 'check.html',{'status':'Success!','desc':'Your signature is valid!','color':'lightgreen'})
     return render(request, 'check.html',{'status':'Rejected','desc':'Your signature is not valid.','color':'lightcoral'})
 
 
 @csrf_exempt
 def keys(request=None):
-    private_key, public_key = crypt.generate_keys()
-    return HttpResponse("Private Key: " + private_key + "<br>Public Key: " + public_key)
+    k = crypt.generate_keys()
+    return HttpResponse("Private Key: " + k['private_key'] + "<br>Public Key: " + k['public_key'])
 
 
 def process_request(request, fields):
@@ -219,15 +223,16 @@ def test(request):
     return render(request, 'test.html', {'res':response.content})
 
 
-def shorten(host, s, u, h):
+def shorten(host, s, u, h, n):
     key = '7250c6a4b2c45454e63558ce82f214aa0ffb64f8'
     guid = 'Bi6c31plwrT'
 
     url = host \
             + 'u=' + u \
             + '&h=' + h \
-            + '&s=' + s
-
+            + '&s=' + s \
+            + '&n=' + n
+    print(url)
     payload = json.dumps({
         "long_url": url,
         "group_guid": guid
@@ -235,6 +240,7 @@ def shorten(host, s, u, h):
 
     HEADERS = {'Content-Type': 'application/json', 'Authorization': key, 'Host': 'api-ssl.Bitly.com'}
     res = requests.request(method='POST', url='https://api-ssl.Bitly.com/v4/shorten', data=payload, headers=HEADERS)
+    print(res.content)
     return json.loads(res.content)['link'] or ''
 
 
