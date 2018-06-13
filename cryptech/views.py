@@ -71,7 +71,7 @@ def origin(request):
                    nonce=crypt.create_nonce(nonce=content_info['nonce']))
     content_info['signature'] = s.sign
     content_info['verified'] = str(crypt.verify(content_info['content_hash'], s, user_info['public_key']))
-    content_info['qr'] = shorten(host='127.0.0.1:8000/check?/',
+    content_info['qr'] = shorten(host='https://cryptech-api.herokuapp.com/check?',
                                  u=user_info['public_key'],
                                  h=content_info['content_hash'],
                                  s=s.sign,
@@ -136,7 +136,7 @@ def explore(request):
 @csrf_exempt
 def verify(request):
 
-    fields = ['public_key', 'memo', 'content_hash', 'signature', 'verified', 'qr', 'seed_hash']
+    fields = ['public_key', 'memo', 'content_hash', 'signature', 'verified', 'qr', 'nonce']
     context = process_request(request, fields)
 
     # get file or text if input present
@@ -160,13 +160,14 @@ def verify(request):
                                             sign=crypt.Sign(sign=context['signature']),
                                             auth_pk=context['public_key'])
         # get the qr code
-        context['qr'] = shorten(host='127.0.0.1:8000/check?/',
+        context['qr'] = shorten(host='https://cryptech-api.herokuapp.com/check?',
                                      u=context['public_key'],
                                      h=context['content_hash'],
                                      s=context['signature'],
-                                     n=context['seed_hash'])
+                                     n=context['nonce'])
+    print(context['nonce'])
     # verify the nonce
-    context['verified'] = str(context['verified'] and crypt.verify_nonce(seed=context['seed_hash'],sign=context['signature']))
+    context['verified'] = str(context['verified'] and crypt.verify_nonce(nonce=context['nonce'],sign=context['signature']))
     return render(request, 'verify.html', context)
 
 
@@ -177,7 +178,7 @@ def check(request):
     h = request.GET.get('h')
     n = request.GET.get('n')
     vs = crypt.verify(h, crypt.Sign(sign=s), u)
-    vn = crypt.verify_nonce(seed=n, sign=s)
+    vn = crypt.verify_nonce(nonce=n, sign=s)
     if vs and vn:
         return render(request, 'check.html',{'status':'Success!','desc':'Your signature is valid!','color':'lightgreen'})
     return render(request, 'check.html',{'status':'Rejected','desc':'Your signature is not valid.','color':'lightcoral'})

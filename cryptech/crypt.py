@@ -5,13 +5,15 @@ import nacl.signing, nacl.hash
 import os, hashlib
 
 def create_nonce(nonce=None, seed=None):
-    if seed:
+    if seed is not None:
         hashed_seed = hash_msg(seed)
         if seed == '': create_nonce(seed='0'*100)
-        return str(bytes(hashed_seed[0:24].ljust(24, '\0'), 'utf-8'),'utf-8')
-    if nonce and type(nonce).__name__ == 'str':
-        if nonce == '': create_nonce(seed='0'*100)
-        nonce = bytes(nonce, 'utf-8')
+        return str(bytes(hashed_seed, 'utf-8')[0:24].ljust(24, b'\0'),'utf-8')
+    if nonce is not None:
+        if type(nonce).__name__ == 'bytes':
+            nonce = nonce[0:24].ljust(24, b'\0')
+        if type(nonce).__name__ == 'str':
+            nonce = bytes(nonce[0:24].ljust(24, '\0'), 'utf-8')
     return nonce
 
 
@@ -62,9 +64,9 @@ def verify(msg, sign, auth_pk):
         return False
 
 
-def verify_nonce(seed, sign):
+def verify_nonce(nonce, sign):
     sign = sign[0:48]
-    nonce_sign = Sign(msg='0', auth_rk='0' * 64, nonce=create_nonce(seed=seed)).sign[0:48]
+    nonce_sign = Sign(msg='0', auth_rk='0' * 64, nonce=create_nonce(nonce=nonce)).sign[0:48]
     print(sign)
     print(nonce_sign)
     return sign == nonce_sign
@@ -164,21 +166,21 @@ if __name__ == "__main__":
     # "Content-Type": "image/jpeg"
     # payload = {"file": "webcam.jpg"}
 
-    url = "http://api.qrserver.com/v1/read-qr-code/"
-
-    payload = "------WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Disposition: form-data; name=\"file\"; filename=\"webcam.jpg\"\r\nContent-Type: image/jpeg\r\n\r\n\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Disposition: form-data; name=\"MAX_FILE_SIZE\"\r\n\r\n1048576\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW--"
-    headers = {
-        'content-type': "multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW",
-        'Cache-Control': "no-cache",
-        'Postman-Token': "c687e713-15e6-4398-a9b5-65cb1eb71e52"
-    }
+    # url = "http://api.qrserver.com/v1/read-qr-code/"
+    #
+    # payload = "------WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Disposition: form-data; name=\"file\"; filename=\"webcam.jpg\"\r\nContent-Type: image/jpeg\r\n\r\n\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Disposition: form-data; name=\"MAX_FILE_SIZE\"\r\n\r\n1048576\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW--"
+    # headers = {
+    #     'content-type': "multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW",
+    #     'Cache-Control': "no-cache",
+    #     'Postman-Token': "c687e713-15e6-4398-a9b5-65cb1eb71e52"
+    # }
     #
     # response = requests.request("POST", 'http://127.0.0.1:8000/test/', data=payload, headers=headers)
     #
     # print(response.text)
 
-    from qrtools.qrtools import QR
-    import zbar
+    # from qrtools.qrtools import QR
+    # import zbar
 
 
     # my_QR = QR(filename="/Users/sbakhda/dev/cryptech/cryptech/static/webcam.jpg")
@@ -199,28 +201,29 @@ if __name__ == "__main__":
     #
     # codes = zbarlight.scan_codes(['qrcode'], image)
     # print('QR codes: %s' % codes)
-
-    uk = '8a6953509ab98d41302c483035acbb380388b770a1cf578665b88490d271d842'
-    rk = '9d53077ce5d42cda2383a816c5d774a5464e4372cfe725469624cfaee6270ca0'
-    rk2 = '9d5307ece5a42caa238aa816c5d774a5464e4372cfe725469624cfaee6270ca1'
-
-    def sp(s):
-        print(s.sign[:48] + '\t' + s.sign[48:])
-
-    def check_nonce(nonce_seed, sign):
-        sign = sign[0:48]
-        nonce_sign = Sign(msg='0', auth_rk='0'*64, nonce=create_nonce(seed=nonce_seed)).sign[0:48]
-        return nonce_sign == sign
-
-    s = Sign(msg='shikhar',auth_rk=rk, nonce=create_nonce(seed='nonce'))
-    s2 = Sign(msg='shikhar',auth_rk=rk2, nonce=create_nonce(seed='nonce'))
-    s3 = Sign(msg='shikhar',auth_rk=rk, nonce=create_nonce(seed='nonce1'))
-    s4 = Sign(msg='shikhar',auth_rk=rk, nonce=create_nonce(seed='nonce1'))
-
-    print(check_nonce('nonce', s.sign))
-
-
-    sp(s)
-    sp(s2)
-    sp(s3)
-    sp(s4)
+    #
+    # uk = '8a6953509ab98d41302c483035acbb380388b770a1cf578665b88490d271d842'
+    # rk = '9d53077ce5d42cda2383a816c5d774a5464e4372cfe725469624cfaee6270ca0'
+    # rk2 = '9d5307ece5a42caa238aa816c5d774a5464e4372cfe725469624cfaee6270ca1'
+    #
+    # def sp(s):
+    #     print(s.sign[:48] + '\t' + s.sign[48:])
+    #
+    # def check_nonce(nonce_seed, sign):
+    #     sign = sign[0:48]
+    #     nonce_sign = Sign(msg='0', auth_rk='0'*64, nonce=create_nonce(seed=nonce_seed)).sign[0:48]
+    #     return nonce_sign == sign
+    #
+    # s = Sign(msg='shikhar',auth_rk=rk, nonce=create_nonce(seed='nonce'))
+    # s2 = Sign(msg='shikhar',auth_rk=rk2, nonce=create_nonce(seed='nonce'))
+    # s3 = Sign(msg='shikhar',auth_rk=rk, nonce=create_nonce(seed='nonce1'))
+    # s4 = Sign(msg='shikhar',auth_rk=rk, nonce=create_nonce(seed='nonce1'))
+    #
+    # print(check_nonce('nonce', s.sign))
+    #
+    #
+    # sp(s)
+    # sp(s2)
+    # sp(s3)
+    # sp(s4)
+    print(create_nonce(nonce='2bb80d537b1da3e38bd30361'))
