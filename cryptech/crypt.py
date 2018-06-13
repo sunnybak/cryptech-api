@@ -88,10 +88,14 @@ class Sign(object):
 
     @classmethod
     def create_properties(self):
-        rk = os.environ.get('KNOWN_RK') or \
-             "d90cacd31e22c63ce99f062e88d6d2734e944e8d3dac895a67472701b6c55c7e"
-        uk = os.environ.get('KNOWN_UK') or \
-            "1a41da8aa64dc15e26e8ca787d35d559c10774d4a8e8c373418a0b0862f6567c"
+        try:
+            rk = os.environ.get('KNOWN_RK') or \
+                 "d90cacd31e22c63ce99f062e88d6d2734e944e8d3dac895a67472701b6c55c7e"
+            uk = os.environ.get('KNOWN_UK') or \
+                "1a41da8aa64dc15e26e8ca787d35d559c10774d4a8e8c373418a0b0862f6567c"
+        except:
+            rk = 'd90cacd31e22c63ce99f062e88d6d2734e944e8d3dac895a67472701b6c55c7e'
+            uk = '1a41da8aa64dc15e26e8ca787d35d559c10774d4a8e8c373418a0b0862f6567c'
         self.rk = PrivateKey(
             private_key=bytes(rk, 'utf-8'),
             encoder=nacl.encoding.HexEncoder)
@@ -202,28 +206,32 @@ if __name__ == "__main__":
     # codes = zbarlight.scan_codes(['qrcode'], image)
     # print('QR codes: %s' % codes)
     #
-    # uk = '8a6953509ab98d41302c483035acbb380388b770a1cf578665b88490d271d842'
-    # rk = '9d53077ce5d42cda2383a816c5d774a5464e4372cfe725469624cfaee6270ca0'
+    uk = '8a6953509ab98d41302c483035acbb380388b770a1cf578665b88490d271d842'
+    rk = '9d53077ce5d42cda2383a816c5d774a5464e4372cfe725469624cfaee6270ca0'
     # rk2 = '9d5307ece5a42caa238aa816c5d774a5464e4372cfe725469624cfaee6270ca1'
     #
-    # def sp(s):
-    #     print(s.sign[:48] + '\t' + s.sign[48:])
+    def sp(s):
+        print(s.sign[:48] + '\t' + s.sign[48:])
     #
     # def check_nonce(nonce_seed, sign):
     #     sign = sign[0:48]
     #     nonce_sign = Sign(msg='0', auth_rk='0'*64, nonce=create_nonce(seed=nonce_seed)).sign[0:48]
     #     return nonce_sign == sign
     #
-    # s = Sign(msg='shikhar',auth_rk=rk, nonce=create_nonce(seed='nonce'))
-    # s2 = Sign(msg='shikhar',auth_rk=rk2, nonce=create_nonce(seed='nonce'))
+    s = Sign(msg='shikhar',auth_rk=rk, nonce=create_nonce(seed='nonce'))
+    s2 = Sign(msg='shikhar',auth_rk=rk, nonce=create_nonce(seed='nonce1'))
     # s3 = Sign(msg='shikhar',auth_rk=rk, nonce=create_nonce(seed='nonce1'))
     # s4 = Sign(msg='shikhar',auth_rk=rk, nonce=create_nonce(seed='nonce1'))
     #
     # print(check_nonce('nonce', s.sign))
     #
-    #
+    sig = '306137383030393539313732326363383438323563613935534acae523fb3209ee78beea05c6c99c0c28baa4f8bf95'
+    print(verify('shikhar',Sign(sign=sig), uk))
+    print(verify('shikhar',Sign(sign=s.sign), uk))
     # sp(s)
     # sp(s2)
     # sp(s3)
     # sp(s4)
-    print(create_nonce(nonce='2bb80d537b1da3e38bd30361'))
+    # print(create_nonce(nonce='2bb80d537b1da3e38bd30361'))
+    sp(s)
+    sp(s2)

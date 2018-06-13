@@ -18,7 +18,10 @@ def _set_env(params):
     env_file.close()
 
 def _get_chain_id():
-    return _get_env_param('FACTOM_CHAIN')
+    try:
+        return _get_env_param('FACTOM_CHAIN')
+    except:
+        return '8c043d7558276390b5767672bb6dbb6e5c339798e0698408740a408ccd54f1a7'
 
 def _get_env_param(param):
     env_file = open('.env', 'r')
