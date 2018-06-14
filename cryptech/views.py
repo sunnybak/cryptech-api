@@ -112,7 +112,7 @@ def explore(request):
     class block(object):
         def __init__(self, entry_hash, content, ext_ids):
             self.entry_hash = entry_hash
-            self.signature = content
+            self.signature = str(factom._decode(content), 'utf-8')
             ext_ids = [str(x, 'utf-8') if x != '' else x for x in ext_ids]
             try:
                 self.timestamp = time.strftime("%a, %d %b %Y %H:%M:%S", time.localtime(int(ext_ids[0])))
@@ -312,9 +312,3 @@ def logout_user(request):
         "form": form,
     }
     return render(request, 'login.html', context)
-
-# ext_ids = ['mediachain', str(int(time.time()))]
-    # content ='Chain for copyrights, patents, and create asset protection'
-    # chain_id = str(factom.create_chain(external_ids=ext_ids, content=content))
-    # 'chain id = fb8d30c54e846b2bd7f1f5f68145c309be4c1885def89f05954dc89ce0878206'
-    # 'entry hash = 3cbbae26e73cfeaa8d1566bef45b14a5814e018780e965d3a1366f7fa1431bf6'

@@ -150,3 +150,11 @@ if __name__ == "__main__":
     # for e in entries:
     #     print(chain_get_entry(CHAIN, e['entry_hash']))
     print(API)
+
+
+    """
+    To see a World in a grain of sand,
+    And Heaven in a Wildflower,
+    Hold infinity in the palm of your hand,
+    And eternity in an hour. 
+    """

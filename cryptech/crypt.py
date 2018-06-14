@@ -42,7 +42,7 @@ def hash_msg(msg):
 
 def file_hash(file_name):
     BLOCKSIZE = 65536
-    hasher = hashlib.sha1()
+    hasher = hashlib.sha256()
     with open(file_name, 'rb') as afile:
         buf = afile.read(BLOCKSIZE)
         while len(buf) > 0:
@@ -67,8 +67,6 @@ def verify(msg, sign, auth_pk):
 def verify_nonce(nonce, sign):
     sign = sign[0:48]
     nonce_sign = Sign(msg='0', auth_rk='0' * 64, nonce=create_nonce(nonce=nonce)).sign[0:48]
-    print(sign)
-    print(nonce_sign)
     return sign == nonce_sign
 
 
@@ -206,32 +204,36 @@ if __name__ == "__main__":
     # codes = zbarlight.scan_codes(['qrcode'], image)
     # print('QR codes: %s' % codes)
     #
-    uk = '8a6953509ab98d41302c483035acbb380388b770a1cf578665b88490d271d842'
-    rk = '9d53077ce5d42cda2383a816c5d774a5464e4372cfe725469624cfaee6270ca0'
+    # uk = '8a6953509ab98d41302c483035acbb380388b770a1cf578665b88490d271d842'
+    # rk = '9d53077ce5d42cda2383a816c5d774a5464e4372cfe725469624cfaee6270ca0'
     # rk2 = '9d5307ece5a42caa238aa816c5d774a5464e4372cfe725469624cfaee6270ca1'
     #
-    def sp(s):
-        print(s.sign[:48] + '\t' + s.sign[48:])
+    # def sp(s):
+    #     print(s.sign[:48] + '\t' + s.sign[48:])
     #
     # def check_nonce(nonce_seed, sign):
     #     sign = sign[0:48]
     #     nonce_sign = Sign(msg='0', auth_rk='0'*64, nonce=create_nonce(seed=nonce_seed)).sign[0:48]
     #     return nonce_sign == sign
     #
-    s = Sign(msg='shikhar',auth_rk=rk, nonce=create_nonce(seed='nonce'))
-    s2 = Sign(msg='shikhar',auth_rk=rk, nonce=create_nonce(seed='nonce1'))
+    # s = Sign(msg='shikhar',auth_rk=rk, nonce=create_nonce(seed='nonce'))
+    # s2 = Sign(msg='shikhar',auth_rk=rk, nonce=create_nonce(seed='nonce1'))
+
     # s3 = Sign(msg='shikhar',auth_rk=rk, nonce=create_nonce(seed='nonce1'))
     # s4 = Sign(msg='shikhar',auth_rk=rk, nonce=create_nonce(seed='nonce1'))
     #
     # print(check_nonce('nonce', s.sign))
     #
-    sig = '306137383030393539313732326363383438323563613935534acae523fb3209ee78beea05c6c99c0c28baa4f8bf95'
-    print(verify('shikhar',Sign(sign=sig), uk))
-    print(verify('shikhar',Sign(sign=s.sign), uk))
+    # sig = '306137383030393539313732326363383438323563613935534acae523fb3209ee78beea05c6c99c0c28baa4f8bf95'
+    # print(verify('shikhar',Sign(sign=s.sign), uk))
+    # print(verify('shikhar',Sign(sign=s2.sign), uk) and verify_nonce(nonce=create_nonce(seed='nonce'),sign=s2.sign))
+    # verify_nonce()
     # sp(s)
     # sp(s2)
     # sp(s3)
     # sp(s4)
     # print(create_nonce(nonce='2bb80d537b1da3e38bd30361'))
-    sp(s)
-    sp(s2)
+    # sp(s)
+    # sp(s2)
+
+
