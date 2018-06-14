@@ -25,8 +25,8 @@
                                 <input id="{{ p }}" type="text" name="{{ p }}" value="{{ k }}" size="100"><br>
                             {% endfor %}
                     <br><br>
-                        <img src="https://api.qrserver.com/v1/create-qr-code/?data={{ content_info.qr }}&amp;size=200x200&amp;ecc=H"/><br>
-                        <a href="{{  content_info.qr  }}"><h4>link</h4></a>
+                        <!--<img src="https://api.qrserver.com/v1/create-qr-code/?data={{ content_info.qr }}&amp;size=200x200&amp;ecc=H"/><br>-->
+                        <!--<a href="{{  content_info.qr  }}"><h4>link</h4></a>-->
                     <h4>Your factom information:</h4>
                             {% for p,k in factom_info.items %}
                                 <br><label class="control-label col-sm-2" for="{{ p }}">{{ p }}:</label>

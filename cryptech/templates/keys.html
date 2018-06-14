@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block title %}Keys{% endblock %}
+
+{% block body %}
+
+
+<div class="container-fluid">
+    </br></br></br></br>
+    <div class="row">
+        <div class="col-sm-12 col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <h3>Generate Keys</h3>
+                    {% if error_message %}
+                        <p><strong>{{ error_message }}</strong></p>
+                    {% endif %}
+                    <form class="form-horizontal" role="form" action="{% url 'upload' %}" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label class="control-label col-sm-2" for="public_key">
+                                Public Key:
+                            </label>
+                            <div class="col-sm-10">
+                                <input id="public_key"  name="public_key" type="text" value="{{ public_key }}" size="90">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-2" for="private_key">
+                                Private Key:
+                            </label>
+                            <div class="col-sm-10">
+                                <input id="private_key"  name="private_key" type="text" value="{{ private_key }}" size="90">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-10">
+                                <button type="submit" class="btn btn-success" formaction="{% url 'keys' %}">Generate</button>
+                                    <button type="submit" class="btn btn-success">Use</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

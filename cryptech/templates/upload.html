@@ -1,8 +1,7 @@
 {% extends 'base.html' %}
-{% block title %}Log In
+{% block title %}Upload
 
 {% endblock %}
-{% block login_active %}active{% endblock %}
 
 {% block body %}
 
@@ -12,7 +11,7 @@
         <div class="col-sm-12 col-md-12">
             <div class="panel panel-default">
                 <div class="panel-body" align="center">
-                    <h3>Upload some media: </h3>
+                    <h3>Upload some media</h3>
                     {% if error_message %}
                     <p><strong>{{ error_message }}</strong></p>
                     {% endif %}
@@ -20,44 +19,44 @@
                     <form action="/upload/" method="post" enctype="multipart/form-data">
 
                         <label class="control-label col-sm-2" for="public_key">Public Key: </label><br>
-                        <input id="public_key" name="public_key" type="text" value="{{ public_key }}" size="70">
-                        <button class="btn btn-success" onclick="copyUK()">Copy</button><br>
+                        <input id="public_key" name="public_key" type="text" value="{{ public_key }}" size="70"><br>
+                        <!--<button class="btn btn-success" onclick="copyUK()">Copy</button>-->
 
                         <label class="control-label col-sm-2" for="private_key">Private Key: </label><br>
-                        <input id="private_key" name="private_key" type="text" value="{{ private_key }}" size="70">
-                        <button class="btn btn-success" onclick="copyRK()">Copy</button><br>
+                        <input id="private_key" name="private_key" type="text" value="{{ private_key }}" size="70"><br>
+                        <!--<button class="btn btn-success" onclick="copyRK()">Copy</button>-->
 
-                        <label class="control-label col-sm-2" for="raw_nonce"> Raw Nonce (dev only): </label><br>
-                        <input id="raw_nonce" maxlength="24" name="raw_nonce" type="raw_nonce" value="{{ raw_nonce  }}" size="70">
-                        <button class="btn btn-success" onclick="copyNonce()">Copy</button><br>
+                        <label class="control-label col-sm-2" for="raw_nonce"> Raw Nonce: </label><br>
+                        <input id="raw_nonce" maxlength="24" name="raw_nonce" type="raw_nonce" value="{{ raw_nonce  }}" size="70"><br>
+                        <!--<button class="btn btn-success" onclick="copyNonce()">Copy</button>-->
 
                         <label class="control-label col-sm-2" for="nonce"> Nonce: </label><br>
                         <input id="nonce" maxlength="24" name="nonce" type="nonce" value="{{ nonce  }}" size="70">
-                        <button class="btn btn-success" onclick="copyNonce()">Copy</button><br><br><br>
+                        <br><br><br>
+                        <!--<button class="btn btn-success" onclick="copyNonce()">Copy</button>-->
 
-                        <script>
-                            function copyUK() {
-                                var copyText = document.getElementById("public_key");
-                                copyText.select();
-                                document.execCommand("copy");
-                            }
+                        <!--<script>-->
+                            <!--function copyUK() {-->
+                                <!--var copyText = document.getElementById("public_key");-->
+                                <!--copyText.select();-->
+                                <!--document.execCommand("copy");-->
+                            <!--}-->
 
-                            function copyRK() {
-                                var copyText = document.getElementById("private_key");
-                                copyText.select();
-                                document.execCommand("copy");
-                            }
+                            <!--function copyRK() {-->
+                                <!--var copyText = document.getElementById("private_key");-->
+                                <!--copyText.select();-->
+                                <!--document.execCommand("copy");-->
+                            <!--}-->
 
-                            function copyNonce() {
-                                var copyText = document.getElementById("nonce");
-                                copyText.select();
-                                document.execCommand("copy");
-                            }
-                        </script>
-                                            <h4>Upload a file:</h4>
+                            <!--function copyNonce() {-->
+                                <!--var copyText = document.getElementById("nonce");-->
+                                <!--copyText.select();-->
+                                <!--document.execCommand("copy");-->
+                            <!--}-->
+                        <!--</script>-->
+                        <h4>Upload a file:</h4>
 
                         <input type="file" name="myfile">
-                        <!--<input type="file" name="myfile" value="">-->
                         <br><br><br><br>
                         <h4>Add a memo (this won't be hashed)</h4><br>
                         <input id="memo" name="memo" type="memo" value="{{ memo  }}"

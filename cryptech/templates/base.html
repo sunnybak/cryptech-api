@@ -36,6 +36,14 @@
         <div class="collapse navbar-collapse" id="topNavBar">
             <ul class="nav navbar-nav">
                 <li class="">
+                    <a href="{% url 'keys' %}">
+                        <span class="glyphicon glyphicon-user" aria-hidden="true"></span>&nbsp;
+                        Keys
+                    </a>
+                </li>
+            </ul>
+            <ul class="nav navbar-nav">
+                <li class="">
                     <a href="{% url 'upload' %}">
                         <span class="glyphicon glyphicon-open-file" aria-hidden="true"></span>&nbsp;
                         Upload
@@ -52,17 +60,18 @@
             </ul>
             <ul class="nav navbar-nav">
                 <li class="">
-                    <a href="{% url 'explore' %}">
-                        <span class="glyphicon glyphicon-bitcoin" aria-hidden="true"></span>&nbsp;
-                        Explore
-                    </a>
-                </li>
-            </ul>
-                        <ul class="nav navbar-nav">
-                <li class="">
                     <a href="{% url 'verify' %}">
                         <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>&nbsp;
                         Verify
+                    </a>
+                </li>
+            </ul>
+
+            <ul class="nav navbar-nav">
+                <li class="">
+                    <a href="{% url 'explore' %}">
+                        <span class="glyphicon glyphicon-bitcoin" aria-hidden="true"></span>&nbsp;
+                        Explore
                     </a>
                 </li>
             </ul>

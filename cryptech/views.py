@@ -29,7 +29,7 @@ def upload(request):
     if context['content_hash'] == '':
         if request.method == "POST" and myfile is not None and myfile != '':
             fs = FileSystemStorage()
-            filename = fs.save(myfile.name, myfile)
+            filename = fs.save('downloads/'+myfile.name, myfile)
             context['content_hash'] = crypt.file_hash(filename)
 
     text = context['memo']
@@ -37,9 +37,9 @@ def upload(request):
         context['memo'] = text
 
     # generate public-private key pair
-    k = crypt.generate_keys()
-    context['public_key'] = k['public_key']
-    context['private_key'] = k['private_key']
+    # k = crypt.generate_keys()
+    # context['public_key'] = k['public_key']
+    # context['private_key'] = k['private_key']
 
     # create nonce
     if context['raw_nonce'] != '':
@@ -141,11 +141,10 @@ def verify(request):
 
     # get file or text if input present
     myfile = request.FILES.get('myfile', None)
-    if context['content_hash'] == '':
-        if request.method == "POST" and myfile is not None and myfile != '':
-            fs = FileSystemStorage()
-            filename = fs.save(myfile.name, myfile)
-            context['content_hash'] = crypt.file_hash(filename)
+    if request.method == "POST" and myfile is not None and myfile != '':
+        fs = FileSystemStorage()
+        filename = fs.save('downloads/'+myfile.name, myfile)
+        context['content_hash'] = crypt.file_hash(filename)
 
     text = context['memo']
     if text is not None and text != '':
@@ -165,7 +164,7 @@ def verify(request):
                                      h=context['content_hash'],
                                      s=context['signature'],
                                      n=context['nonce'])
-    print(context['nonce'])
+
     # verify the nonce
     context['verified'] = str(context['verified'] and crypt.verify_nonce(nonce=context['nonce'],sign=context['signature']))
     return render(request, 'verify.html', context)
@@ -185,9 +184,9 @@ def check(request):
 
 
 @csrf_exempt
-def keys(request=None):
+def keys(request):
     k = crypt.generate_keys()
-    return HttpResponse("Private Key: " + k['private_key'] + "<br>Public Key: " + k['public_key'])
+    return render(request, 'keys.html', {'private_key': k['private_key'], 'public_key' : k['public_key']})
 
 
 def process_request(request, fields):
@@ -207,7 +206,7 @@ def test(request):
     myfile = request.FILES.get('webcam', None)
     if request.method == "POST" and myfile is not None and myfile != '':
         fs = FileSystemStorage()
-        filename = fs.save('cryptech/static/webcam.jpg', myfile)
+        filename = fs.save('downloads/'+myfile.name, myfile)
 
     url = "http://api.qrserver.com/v1/read-qr-code/"
 
