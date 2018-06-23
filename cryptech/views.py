@@ -11,7 +11,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 import requests, json, time
-
+from django.http import JsonResponse
 
 def index(request):
     return HttpResponse('best home page')
@@ -20,7 +20,6 @@ def index(request):
 # @login_required
 @csrf_exempt
 def upload(request):
-
     fields = ['public_key', 'private_key', 'memo', 'raw_nonce', 'nonce', 'content_hash']
     context = process_request(request, fields)
 
@@ -50,7 +49,6 @@ def upload(request):
     # context['nonce'] = str(nonce(hash_msg(request.user.username + User.objects.get(username=request.user.username).email)),'utf-8')
 
     return render(request, 'upload.html', context)
-
 
 # @login_required
 @csrf_exempt
@@ -187,7 +185,6 @@ def check(request):
 def keys(request):
     k = crypt.generate_keys()
     return render(request, 'keys.html', {'private_key': k['private_key'], 'public_key' : k['public_key']})
-
 
 def process_request(request, fields):
     query = dict()

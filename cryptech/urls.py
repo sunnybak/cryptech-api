@@ -17,6 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from . import views
+from . import api_views
 
 
 urlpatterns = [
@@ -32,4 +33,10 @@ urlpatterns = [
     path('verify/', views.verify, name='verify'),
     path('register/', views.UserFormView.as_view(), name='register'),
     path('check/', views.check, name='check'),
+    path('generate_key_pair', api_views.generate_key_pair),
+    path('publish', api_views.publish),
+    path('publish_with_notary', api_views.publish_with_notary),
+    path('verify_sign', api_views.verify_sign),
+    path('get_published_data', api_views.get_published_data),
+
 ]
