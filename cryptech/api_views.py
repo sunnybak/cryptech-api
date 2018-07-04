@@ -119,8 +119,9 @@ def verify_sign(request):
 def verify_sign_notary(request):
 
     response = {
-        "result": "",
-        "validNotary": ""
+        "validAuthorSignature": "",
+        "validNotarySignature": "",
+        "validNonce": ""
     }
 
     chain_id = request.POST.get("chainID")
@@ -131,7 +132,6 @@ def verify_sign_notary(request):
     notary_signature = request.POST.get("notarySign")
     identity = request.POST.get("identityHash")
 
-
     signature = factom.chain_get_entry(chain_id=chain_id, entry_hash=entry_hash)["content"]
     signature = str(factom._decode(signature), 'utf-8')
 
@@ -139,15 +139,19 @@ def verify_sign_notary(request):
                           sign=crypt.Sign(sign=signature),
                           auth_pk=public_key)
 
-    response["result"] = str(verify)
+    response["validAuthorSignature"] = str(verify)
 
     valid_notary_sign = crypt.verify(msg=identity,
                           sign=crypt.Sign(sign=notary_signature),
                           auth_pk=notary_public_key)
 
-    if valid_notary_sign:
-        response["validNotary"] = crypt.verify_nonce(nonce=crypt.create_nonce(seed=notary_signature),sign=signature)
+    response["validNotarySignature"] = str(valid_notary_sign)
 
+    if valid_notary_sign:
+        verify_notary = crypt.verify_nonce(nonce=crypt.create_nonce(seed=notary_signature),sign=signature)
+        response["validNonce"] = str(verify_notary)
+    else:
+        response["validNonce"] = str(False)
     return JsonResponse(response)
 
 
