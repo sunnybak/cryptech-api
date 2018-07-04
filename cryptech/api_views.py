@@ -28,8 +28,7 @@ def generate_key_pair(request):
 def publish(request):
     response = {
         "entryHash": "",
-        "signature": "",
-        "chainID": ""
+        "signature": ""
     }
     chain_id = request.POST.get("chainID")
     content_hash = request.POST.get("hash")
@@ -47,12 +46,11 @@ def publish(request):
     resp = factom.chain_add_entry(chain_id=chain_id,
                                   external_ids=context_list,
                                   content=response["signature"])
+
     response["entryHash"] = resp.get('entry_hash') or None
 
     if response["entryHash"] is None:
         return JsonResponse({"error": "could not publish to Factom"})
-
-    response["chainID"] = chain_id
 
     return JsonResponse(response)
 
@@ -63,8 +61,7 @@ def publish_with_notary(request):
     response = {
         "entryHash": "",
         "signature": "",
-        "notarySignature": "",
-        "chainID": ""
+        "notarySignature": ""
     }
 
     chain_id = request.POST.get("chainID")
@@ -91,8 +88,6 @@ def publish_with_notary(request):
     if response["entryHash"] is None:
         return JsonResponse({"error": "could not publish to Factom"})
 
-    response["chainID"] = chain_id
-
     return JsonResponse(response)
 
 
@@ -116,6 +111,42 @@ def verify_sign(request):
                           auth_pk=public_key)
 
     response["result"] = str(verify)
+
+    return JsonResponse(response)
+
+
+@csrf_exempt
+def verify_sign_notary(request):
+
+    response = {
+        "result": "",
+        "validNotary": ""
+    }
+
+    chain_id = request.POST.get("chainID")
+    entry_hash = request.POST.get("entryHash")
+    content_hash = request.POST.get("hash")
+    public_key = request.POST.get("publicKey")
+    notary_public_key = request.POST.get("notaryPublicKey")
+    notary_signature = request.POST.get("notarySign")
+    identity = request.POST.get("identityHash")
+
+
+    signature = factom.chain_get_entry(chain_id=chain_id, entry_hash=entry_hash)["content"]
+    signature = str(factom._decode(signature), 'utf-8')
+
+    verify = crypt.verify(msg=content_hash,
+                          sign=crypt.Sign(sign=signature),
+                          auth_pk=public_key)
+
+    response["result"] = str(verify)
+
+    valid_notary_sign = crypt.verify(msg=identity,
+                          sign=crypt.Sign(sign=notary_signature),
+                          auth_pk=notary_public_key)
+
+    if valid_notary_sign:
+        response["validNotary"] = crypt.verify_nonce(nonce=crypt.create_nonce(seed=notary_signature),sign=signature)
 
     return JsonResponse(response)
 
