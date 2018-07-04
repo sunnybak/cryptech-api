@@ -31,27 +31,24 @@ def publish(request):
         "signature": "",
         "chainID": ""
     }
-
-    try:
-        chain_id = request.POST.get("chainID") or 1 / 0
-        content_hash = request.POST.get("hash") or 1 / 0
-        publish_context = request.POST.get("context") or 1 / 0
-        private_key = request.POST.get("privateKey") or 1 / 0
-    except ZeroDivisionError:
-        return JsonResponse({"error": "incorrect request"})
-    except Exception as ex:
-        template = "An exception of type {0} occurred. Arguments:\n{1!r}"
-        message = template.format(type(ex).__name__, ex.args)
-        return JsonResponse({"error": message})
+    chain_id = request.POST.get("chainID")
+    content_hash = request.POST.get("hash")
+    publish_context = request.POST.get("context")
+    private_key = request.POST.get("privateKey")
 
     response["signature"] = crypt.Sign(msg=content_hash, auth_rk=private_key).sign
 
-    publish_context = [str(x) for x in list(json.loads(publish_context).values())]
+    context_json = json.loads(publish_context)
+    context_list = []
+    for key, val in context_json.items():
+        context_list.append(str(key))
+        context_list.append(str(val))
 
-    response["entryHash"] = factom.chain_add_entry(chain_id= chain_id,
-                                                   external_ids=publish_context,
-                                                   content=response["signature"]
-                                                   )["entry_hash"] or None
+    resp = factom.chain_add_entry(chain_id=chain_id,
+                                  external_ids=context_list,
+                                  content=response["signature"])
+    response["entryHash"] = resp.get('entry_hash') or None
+
     if response["entryHash"] is None:
         return JsonResponse({"error": "could not publish to Factom"})
 
@@ -70,28 +67,25 @@ def publish_with_notary(request):
         "chainID": ""
     }
 
-    try:
-        chain_id = request.POST.get("chainID") or 1 / 0
-        content_hash = request.POST.get("hash") or 1 / 0
-        publish_context = request.POST.get("context") or 1 / 0
-        private_key = request.POST.get("privateKey") or 1 / 0
-        notary_private_key = request.POST.get("notaryPrivateKey") or 1 / 0
-        identity = request.POST.get("identity") or 1 / 0
-    except ZeroDivisionError:
-        return JsonResponse({"error": "incorrect request"})
-    except Exception as ex:
-        template = "An exception of type {0} occurred. Arguments:\n{1!r}"
-        message = template.format(type(ex).__name__, ex.args)
-        return JsonResponse({"error": message})
+    chain_id = request.POST.get("chainID")
+    content_hash = request.POST.get("hash")
+    publish_context = request.POST.get("context")
+    private_key = request.POST.get("privateKey")
+    notary_private_key = request.POST.get("notaryPrivateKey")
+    identity = request.POST.get("identityHash")
 
     response["notarySignature"] = crypt.Sign(msg=identity, auth_rk=notary_private_key).sign
     response["signature"] = crypt.Sign(msg=content_hash, auth_rk=private_key,
                                        nonce=crypt.create_nonce(seed=response["notarySignature"])).sign
 
-    publish_context = [str(x) for x in list(json.loads(publish_context).values())]
+    context_json = json.loads(publish_context)
+    context_list = []
+    for key, val in context_json.items():
+        context_list.append(str(key))
+        context_list.append(str(val))
 
-    response["entryHash"] = factom.chain_add_entry(chain_id= chain_id,
-                                                   external_ids=publish_context,
+    response["entryHash"] = factom.chain_add_entry(chain_id=chain_id,
+                                                   external_ids=context_list,
                                                    content=response["signature"]
                                                    )["entry_hash"] or None
     if response["entryHash"] is None:
@@ -105,8 +99,25 @@ def publish_with_notary(request):
 @csrf_exempt
 def verify_sign(request):
 
+    response = {
+        "result": ""
+    }
 
-    return HttpResponse('ok')
+    chain_id = request.POST.get("chainID")
+    entry_hash = request.POST.get("entryHash")
+    content_hash = request.POST.get("hash")
+    public_key = request.POST.get("publicKey")
+
+    signature = factom.chain_get_entry(chain_id=chain_id, entry_hash=entry_hash)["content"]
+    signature = str(factom._decode(signature), 'utf-8')
+
+    verify = crypt.verify(msg=content_hash,
+                          sign=crypt.Sign(sign=signature),
+                          auth_pk=public_key)
+
+    response["result"] = str(verify)
+
+    return JsonResponse(response)
 
 
 @csrf_exempt

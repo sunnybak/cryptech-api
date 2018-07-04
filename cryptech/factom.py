@@ -36,15 +36,18 @@ try:
     KEY = _get_env_param('FACTOM_KEY')
     CHAIN = _get_env_param('FACTOM_CHAIN')
     URL = API + '/' + VERSION
+    # URL = API
 except:
-    API = 'https://apiplus-api-sandbox-testnet.factom.com'
-    KEY = 'LJBTJjewwSP4ijD0KVcgLvEPWz5yHwg7Wxd30U5PsojhTGr6'
+    API = 'https://api-2445581893456.production.gw.apicast.io'
+    KEY = 'dfbc568f65205222a3743ff45afab285'
     CHAIN = '8c043d7558276390b5767672bb6dbb6e5c339798e0698408740a408ccd54f1a7'
+    # URL = API
     URL = API + '/' + VERSION
+
 
 HEADERS = {
    "Content-Type": "application/json",
-   "factom-provider-token": KEY,
+   "user-key": KEY,
 }
 
 def _encode(data):
@@ -56,7 +59,6 @@ def _encode(data):
 def _decode(data):
     if not data: 
         return ''
-
     return base64.b64decode(data)
 
 def _decode_response(data):
@@ -85,9 +87,9 @@ def create_chain(external_ids=None, content=None, callback_url=None, callback_st
     _ids = [ _encode(extid) for extid in external_ids ]
     payload = json.dumps({"external_ids": _ids, "content": _encode(content) })
     res = requests.request("POST", URL + '/chains', data=payload, headers=HEADERS)
-    _set_env({
-        'FACTOM_CHAIN' : json.loads(res.content)['chain_id']
-    })
+    # _set_env({
+    #     'FACTOM_CHAIN' : json.loads(res.content)['chain_id']
+    # })
     return _decode_response(res.content)
 
 def chain_search(external_ids=None):
@@ -97,41 +99,44 @@ def chain_search(external_ids=None):
     res = requests.request("POST", URL + '/chains/search', data=payload, headers=HEADERS)
     return _decode_response(res.content)
 
-def chain_info(chain_id=None):
+def chain_info(chain_id=CHAIN):
     """ """
     res = requests.request("GET", URL + '/chains/%s' % chain_id, headers=HEADERS)
     return _decode_response(res.content)
 
-def chain_entries(chain_id=None):
+def chain_entries(chain_id=CHAIN):
     """ """
     res = requests.request("GET", URL + '/chains/%s/entries' % chain_id, headers=HEADERS)
     return _decode_response(res.content)
 
-def chain_add_entry(chain_id=None, external_ids=None, content=None, callback_url=None, callback_stages=None):
+def chain_add_entry(chain_id=CHAIN, external_ids=None, content=None, callback_url=None, callback_stages=None):
     """ """
     _ids = [ _encode(extid) for extid in external_ids ]
     payload = json.dumps({"external_ids": _ids, "content": _encode(content) })
+    print(payload)
+    print(HEADERS)
+    print(URL)
     res = requests.request("POST", URL + '/chains/%s/entries' % chain_id, data=payload, headers=HEADERS)
     return _decode_response(res.content)
 
-def chain_entry_search(chain_id=None, external_ids=None):
+def chain_entry_search(chain_id=CHAIN, external_ids=None):
     """ """
     _ids = [_encode(extid) for extid in external_ids ]
     payload = json.dumps({"external_ids": _ids})
     res = requests.request("POST", URL + '/chains/%s/entries/search' % chain_id, data=payload, headers=HEADERS)
     return _decode_response(res.content)
 
-def chain_entry_first(chain_id=None):
+def chain_entry_first(chain_id=CHAIN):
     """ """
     res = requests.request("GET", URL + '/chains/%s/entries/first' % chain_id, headers=HEADERS)
     return _decode_response(res.content)
 
-def chain_entry_last(chain_id=None):
+def chain_entry_last(chain_id=CHAIN):
     """ """
     res = requests.request("GET", URL + '/chains/%s/entries/last' % chain_id, headers=HEADERS)
     return _decode_response(res.content)
 
-def chain_get_entry(chain_id=None, entry_hash=None):
+def chain_get_entry(chain_id=CHAIN, entry_hash=None):
     """ """
     res = requests.request("GET", URL + '/chains/%s/entries/%s' % (chain_id, entry_hash), headers=HEADERS)
     return _decode_response(res.content)
@@ -141,15 +146,21 @@ def chain_get_entry(chain_id=None, entry_hash=None):
 
 if __name__ == "__main__":
 
-    ext_ids = ['Timestamp', 'Public Key', 'Content Hash', 'Memo']
-    content = 'Signature'
+    # ext_ids = ['Timestamp', 'Public Key', 'Content Hash', 'Memo']
+    # content = 'Signature'
     # print(create_chain(external_ids=ext_ids, content=content))
     # print(_get_chain_id())
     # entries = chain_entries(CHAIN)['items'][-4:]
-    API = _get_env_param('FACTOM_HOST')
+    # API = _get_env_param('FACTOM_HOST')
     # for e in entries:
     #     print(chain_get_entry(CHAIN, e['entry_hash']))
-    print(API)
+    # print(API)
+    # chain = create_chain(external_ids=ext_ids, content=content)
+    # chain = chain_entries()
+    content = '893e377b168fd1d6723523deafa11ce46474b458b2d9682b311164892f55244ab3f7d625f578f5b5222950fbe92f4377c8'
+    ext_ids = ['timestamp', 'random_time', 'data1', 'foo', 'data2', 'ba']
+    entry = chain_add_entry(external_ids=ext_ids, content=content)
+    print(entry)
 
 
     """
