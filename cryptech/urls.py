@@ -39,5 +39,6 @@ urlpatterns = [
     path('verify_sign', api_views.verify_sign),
     path('verify_sign_notary', api_views.verify_sign_notary),
     path('get_published_data', api_views.get_published_data),
+    path('create_chain', api_views.create_chain),
 
 ]
