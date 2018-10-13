@@ -37,6 +37,7 @@ urlpatterns = [
     path('publish', api_views.publish),
     path('publish_with_notary', api_views.publish_with_notary),
     path('verify_sign', api_views.verify_sign),
+    path('verify_sign_notary', api_views.verify_sign_notary),
     path('get_published_data', api_views.get_published_data),
 
 ]

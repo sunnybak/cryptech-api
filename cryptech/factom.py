@@ -50,19 +50,22 @@ HEADERS = {
    "user-key": KEY,
 }
 
+
 def _encode(data):
     if not data: 
         return ''
 
     return base64.b64encode(bytes(data, 'utf-8')).decode('utf8')
 
+
 def _decode(data):
     if not data: 
         return ''
     return base64.b64decode(data)
 
+
 def _decode_response(data):
-    res = json.loads(data)
+    res = json.loads(str(data, 'utf-8'))
     if 'items' in res:
         for _item in res['items']:
             if 'external_ids' in _item:
@@ -71,6 +74,7 @@ def _decode_response(data):
             res['external_ids'] = [ _decode(_id) for _id in res['external_ids'] ]
 
     return res
+
 
 def info():
     """ get api info """
