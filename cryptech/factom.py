@@ -90,7 +90,7 @@ def create_chain(external_ids=None, content=None, callback_url=None, callback_st
     # _set_env({
     #     'FACTOM_CHAIN' : json.loads(res.content)['chain_id']
     # })
-    return _decode_response(res.content)
+    return _decode_response(res.text)
 
 def chain_search(external_ids=None):
     """ """
@@ -146,10 +146,10 @@ def chain_get_entry(chain_id=CHAIN, entry_hash=None):
 
 if __name__ == "__main__":
 
-    # ext_ids = ['Timestamp', 'Public Key', 'Content Hash', 'Memo']
-    # content = 'Signature'
-    # print(create_chain(external_ids=ext_ids, content=content))
-    # print(_get_chain_id())
+    ext_ids = ['Timestamp', 'Public Key', 'Content Hash', 'Memo']
+    content = 'Signature'
+    print(create_chain(external_ids=ext_ids, content=content))
+    print(_get_chain_id())
     # entries = chain_entries(CHAIN)['items'][-4:]
     # API = _get_env_param('FACTOM_HOST')
     # for e in entries:
@@ -157,10 +157,11 @@ if __name__ == "__main__":
     # print(API)
     # chain = create_chain(external_ids=ext_ids, content=content)
     # chain = chain_entries()
-    content = '893e377b168fd1d6723523deafa11ce46474b458b2d9682b311164892f55244ab3f7d625f578f5b5222950fbe92f4377c8'
-    ext_ids = ['timestamp', 'random_time', 'data1', 'foo', 'data2', 'ba']
-    entry = chain_add_entry(external_ids=ext_ids, content=content)
-    print(entry)
+
+    # content = '893e377b168fd1d6723523deafa11ce46474b458b2d9682b311164892f55244ab3f7d625f578f5b5222950fbe92f4377c8'
+    # ext_ids = ['timestamp', 'random_time', 'data1', 'foo', 'data2', 'ba']
+    # entry = chain_add_entry(external_ids=ext_ids, content=content)
+    # print(entry)
 
 
     """

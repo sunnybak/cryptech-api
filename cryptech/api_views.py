@@ -154,3 +154,11 @@ def verify_sign_notary(request):
 @csrf_exempt
 def get_published_data(request):
     return HttpResponse('ok')
+
+@csrf_exempt
+def create_chain(request):
+    ext_ids = ['Ext_id_test']
+    content = 'Test'
+    response = factom.create_chain(external_ids=ext_ids, content=content)
+
+    return JsonResponse(response)
