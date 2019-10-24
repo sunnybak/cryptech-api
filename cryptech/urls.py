@@ -21,6 +21,7 @@ from . import api_views
 
 
 urlpatterns = [
+    path('test/',views.index),
     path('admin/', admin.site.urls),
     path('keys/', views.keys, name='keys'),
     path('login_user/', views.login_user, name='login_user'),
@@ -40,5 +41,4 @@ urlpatterns = [
     path('verify_sign_notary', api_views.verify_sign_notary),
     path('get_published_data', api_views.get_published_data),
     path('create_chain', api_views.create_chain),
-
 ]

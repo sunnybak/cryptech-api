@@ -16,7 +16,6 @@ from django.http import JsonResponse
 def index(request):
     return HttpResponse('best home page')
 
-
 # @login_required
 @csrf_exempt
 def upload(request):
@@ -98,7 +97,6 @@ def origin(request):
     context['factom_info'] = factom_info
 
     return render(request, 'origin.html', context)
-
 
 # @login_required
 @csrf_exempt
@@ -282,7 +280,6 @@ class UserFormView(View):
                     login(request, user)
 
                     return redirect('upload')
-
 
 def login_user(request):
     if request.method == "POST":

@@ -14,6 +14,10 @@ import requests, json, time
 from django.http import JsonResponse
 
 
+def test(request):
+    return HttpResponse('hello world')
+
+# generates public-private keypair
 @csrf_exempt
 def generate_key_pair(request):
     k = crypt.generate_keys()
@@ -23,7 +27,7 @@ def generate_key_pair(request):
     }
     return JsonResponse(response)
 
-
+# publish the signature and hash along with the context
 @csrf_exempt
 def publish(request):
     response = {
